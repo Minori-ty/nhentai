@@ -24,3 +24,5 @@ web-ext.config.ts
 *.sw?
 
 .agents
+dist
+*.tsbuildinfo

@@ -36,7 +36,5 @@ onMounted(() => {
 
 <template>
     <SearchHeader @search="onSearch" />
-    <div>
-        <router-view />
-    </div>
+    <router-view />
 </template>

@@ -36,7 +36,5 @@ onMounted(() => {
 
 <template>
     <SearchHeader @search="onSearch" />
-    <div class="py-6">
-        <router-view />
-    </div>
+    <router-view />
 </template>
