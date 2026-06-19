@@ -3,5 +3,5 @@ packages:
   - 'nhentai-tampermonkey'
   - 'packages/*'
 allowBuilds:
-  esbuild: set this to true or false
-  spawn-sync: set this to true or false
+  esbuild: true
+  spawn-sync: true

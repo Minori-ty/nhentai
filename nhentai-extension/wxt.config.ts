@@ -26,6 +26,7 @@ function asciiOnlyPlugin(): Plugin {
 export default defineConfig({
     modules: ['@wxt-dev/module-vue'],
     manifest: {
+        name: 'nhentai-extension',
         permissions: ['offscreen'],
         host_permissions: ['*://*.nhentai.net/*'],
         icons: {

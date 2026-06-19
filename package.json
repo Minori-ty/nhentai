@@ -8,6 +8,15 @@
     "type": "module",
     "main": "index.js",
     "scripts": {
+        "dev:extension": "pnpm --filter @nhentai/extension dev",
+        "dev:tampermonkey": "pnpm --filter @nhentai/tampermonkey dev",
+        "build:extension": "pnpm --filter @nhentai/extension build",
+        "build:tampermonkey": "pnpm --filter @nhentai/tampermonkey build",
+        "build": "pnpm run build:extension && pnpm run build:tampermonkey",
+        "compile:extension": "pnpm --filter @nhentai/extension compile",
+        "compile:tampermonkey": "pnpm --filter @nhentai/tampermonkey exec vue-tsc -b",
+        "compile": "pnpm run compile:extension && pnpm run compile:tampermonkey",
+        "check": "pnpm run compile && pnpm run build",
         "lint": "oxlint . --fix",
         "format": "oxfmt .",
         "prepare": "husky"
