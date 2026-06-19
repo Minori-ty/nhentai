@@ -1,0 +1,6 @@
+@import 'tailwindcss' important;
+
+html,
+body {
+    @apply bg-[#202a34];
+}
