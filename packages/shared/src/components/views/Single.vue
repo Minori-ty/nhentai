@@ -81,11 +81,10 @@ onMounted(async () => {
         <!-- 图片加载指示器 -->
         <div
             v-if="loadedCount !== gallery.num_pages"
-            :class="
-                isMobile
-                    ? 'fixed top-24 right-4 -translate-y-1/2 rounded-lg bg-black/70 px-3 py-2 font-mono text-base text-white'
-                    : 'fixed top-32 right-4 -translate-y-1/2 rounded-lg bg-black/70 px-3 py-2 font-mono text-base text-white'
-            "
+            :class="[
+                'fixed -translate-y-1/2 rounded-lg bg-black/70 px-3 py-2 font-mono text-base text-white',
+                isMobile ? 'top-24 right-0' : 'top-32 right-4',
+            ]"
         >
             {{ loadedCount }} / {{ gallery.num_pages }}
         </div>

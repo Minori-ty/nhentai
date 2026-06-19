@@ -149,18 +149,17 @@ onMounted(async () => {
     <template v-else-if="gallery">
         <!-- ===== 上半部分：移动端上下布局 / 桌面端左右布局 ===== -->
         <div
-            :class="
-                isMobile
-                    ? 'mx-auto mb-6 flex max-w-[1110px] flex-col items-center gap-4 rounded-xl bg-[#2A3744] px-4 py-6'
-                    : 'mx-auto mb-6 flex max-w-[1110px] gap-8 rounded-xl bg-[#2A3744] px-6 py-8'
-            "
+            :class="[
+                'mx-auto mb-6 flex max-w-[1110px] rounded-xl bg-[#2A3744]',
+                isMobile ? 'flex-col items-center gap-4 px-4 py-6' : 'gap-8 px-6 py-8',
+            ]"
         >
             <!-- 左边（移动端：上方）封面 -->
             <div class="shrink-0">
                 <img
                     :src="coverUrl"
                     :alt="gallery.title.japanese || gallery.title.english"
-                    :class="isMobile ? 'w-full rounded-lg shadow-lg' : 'w-86 rounded-lg shadow-lg'"
+                    :class="['rounded-lg shadow-lg', isMobile ? 'w-full' : 'w-86']"
                     @error="handleImageError"
                 />
             </div>
@@ -261,11 +260,10 @@ onMounted(async () => {
             <div :class="['grid justify-center gap-6', thumbGridClass]">
                 <div v-for="page in gallery.pages" :key="page.number" class="group">
                     <div
-                        :class="
-                            isMobile
-                                ? 'mx-auto h-80 w-full overflow-hidden rounded-lg bg-gray-800'
-                                : 'mx-auto h-80 w-56.25 overflow-hidden rounded-lg bg-gray-800'
-                        "
+                        :class="[
+                            'mx-auto h-80 overflow-hidden rounded-lg bg-gray-800',
+                            isMobile ? 'w-full' : 'w-56.25',
+                        ]"
                     >
                         <img
                             :src="`https://t1.nhentai.net/${page.thumbnail}`"
@@ -275,13 +273,7 @@ onMounted(async () => {
                             @error="handleImageError"
                         />
                     </div>
-                    <p
-                        :class="
-                            isMobile
-                                ? 'mx-auto mt-2 w-full text-center text-sm text-gray-400'
-                                : 'mx-auto mt-2 w-56.25 text-center text-sm text-gray-400'
-                        "
-                    >
+                    <p :class="['mx-auto mt-2 text-center text-sm text-gray-400', isMobile ? 'w-full' : 'w-56.25']">
                         #{{ page.number }}
                     </p>
                 </div>

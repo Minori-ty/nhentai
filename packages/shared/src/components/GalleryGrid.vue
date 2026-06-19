@@ -138,11 +138,10 @@ const gridColsClass = isMobile ? 'grid-cols-2' : 'grid-cols-5'
             >
                 <!-- 封面图 -->
                 <div
-                    :class="
-                        isMobile
-                            ? 'relative mx-auto max-h-80 w-full overflow-hidden rounded-lg bg-gray-800'
-                            : 'relative mx-auto max-h-80 w-56.25 overflow-hidden rounded-lg bg-gray-800'
-                    "
+                    :class="[
+                        'relative mx-auto max-h-80 overflow-hidden rounded-lg bg-gray-800',
+                        isMobile ? 'w-full' : 'w-56.25',
+                    ]"
                 >
                     <!-- 已下载：绿色勾（点击可重新下载） -->
                     <button
@@ -210,11 +209,10 @@ const gridColsClass = isMobile ? 'grid-cols-2' : 'grid-cols-5'
                 </div>
                 <!-- 漫画名 -->
                 <p
-                    :class="
-                        isMobile
-                            ? 'mx-auto mt-2 line-clamp-2 flex w-full items-center justify-center gap-1 text-center text-sm text-gray-300 transition-colors group-hover:text-white'
-                            : 'mx-auto mt-2 line-clamp-2 flex w-56.25 items-center justify-center gap-1 text-center text-sm text-gray-300 transition-colors group-hover:text-white'
-                    "
+                    :class="[
+                        'mx-auto mt-2 line-clamp-2 flex items-center justify-center gap-1 text-center text-sm text-gray-300 transition-colors group-hover:text-white',
+                        isMobile ? 'w-full' : 'w-56.25',
+                    ]"
                 >
                     <img
                         v-if="getLangIcon(item.tag_ids)"
