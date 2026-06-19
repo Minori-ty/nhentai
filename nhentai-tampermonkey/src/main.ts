@@ -30,5 +30,5 @@ document.body.appendChild(root)
 // 挂载 Vue 应用
 const app = createApp(App)
 app.use(router)
-app.provide(GridColumnsKey, 2)
+app.provide(GridColumnsKey, true)
 app.mount('#app')

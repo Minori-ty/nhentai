@@ -10,8 +10,7 @@ const route = useRoute()
 const gallery = ref<IGallery | null>(null)
 const loading = ref(true)
 const loadedCount = ref(0)
-const columns = inject(GridColumnsKey, 5)
-const isMobile = columns <= 2
+const isMobile = inject(GridColumnsKey, false)
 
 function getImageUrl(page: { number: number; path: string }, _mediaId: string): string {
     return `https://i1.nhentai.net/${page.path}`

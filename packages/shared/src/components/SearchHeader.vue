@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, watch, inject, computed, onMounted, onUnmounted, useTemplateRef } from 'vue'
+import { ref, watch, inject, onMounted, onUnmounted, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { userAvatar, userName } from '../composables/useUserAvatar'
 import { searchBus } from '../composables/useSearchBus'
@@ -13,8 +13,7 @@ const emit = defineEmits<{
 
 const router = useRouter()
 const query = ref('')
-const columns = inject(GridColumnsKey, 5)
-const isMobile = computed(() => columns <= 2)
+const isMobile = inject(GridColumnsKey, false)
 
 // 移动端下拉菜单
 const menuOpen = ref(false)
@@ -68,7 +67,19 @@ function doSearch() {
                 class="flex-1 rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-white placeholder-gray-400 transition-all outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/50"
                 @keyup.enter="doSearch"
             />
-            <BaseBtn variant="primary" class="whitespace-nowrap" @click="doSearch">搜索</BaseBtn>
+            <!-- 桌面端：文字按钮；移动端：图标按钮省空间 -->
+            <BaseBtn v-if="!isMobile" variant="primary" class="whitespace-nowrap" @click="doSearch">搜索</BaseBtn>
+            <button
+                v-else
+                class="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-transparent bg-indigo-500 text-white transition-colors hover:bg-indigo-600"
+                @click="doSearch"
+            >
+                <svg class="h-5 w-5 fill-current" viewBox="0 0 512 512">
+                    <path
+                        d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0s208 93.1 208 208zM208 352a144 144 0 100-288 144 144 0 100 288z"
+                    />
+                </svg>
+            </button>
 
             <!-- 桌面端：直接显示 Favorites + 头像 + 用户名 -->
             <template v-if="!isMobile">

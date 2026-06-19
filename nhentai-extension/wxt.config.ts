@@ -24,23 +24,16 @@ function asciiOnlyPlugin(): Plugin {
 }
 
 export default defineConfig({
-    modules: ['@wxt-dev/module-vue'],
+    modules: ['@wxt-dev/module-vue', '@wxt-dev/auto-icons'],
+    autoIcons: {
+        baseIconPath: 'assets/icon.png',
+        sizes: [128, 48, 32, 16],
+        developmentIndicator: 'grayscale',
+    },
     manifest: {
         name: 'nhentai-extension',
         permissions: ['offscreen'],
         host_permissions: ['*://*.nhentai.net/*'],
-        icons: {
-            '16': 'icon/16.png',
-            '32': 'icon/32.png',
-            '48': 'icon/48.png',
-            '128': 'icon/128.png',
-        },
-        action: {
-            default_icon: {
-                '16': 'icon/16.png',
-                '32': 'icon/32.png',
-            },
-        },
     },
     vite: () => ({
         resolve: {

@@ -8,8 +8,7 @@ const props = defineProps<{
     initialPage?: number
 }>()
 
-const columns = inject(GridColumnsKey, 5)
-const isMobile = columns <= 2
+const isMobile = inject(GridColumnsKey, false)
 const currentPage = ref(props.initialPage || 1)
 
 function updateCurrentPage() {

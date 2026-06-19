@@ -1,5 +1,5 @@
 {
-    "name": "@nhentai/extension",
+    "name": "nhentai-extension",
     "version": "0.0.1",
     "private": true,
     "description": "manifest.json description",
@@ -26,6 +26,7 @@
     },
     "devDependencies": {
         "@types/streamsaver": "^2.0.5",
+        "@wxt-dev/auto-icons": "^1.1.1",
         "@wxt-dev/module-vue": "^1.0.3",
         "husky": "^9.1.7",
         "lint-staged": "^17.0.7",

@@ -17,10 +17,8 @@ const gallery = ref<IGallery | null>(null)
 const loading = ref(true)
 
 const dm = inject(DownloadManagerKey, null)
-const columns = inject(GridColumnsKey, 5)
-const isMobile = columns <= 2
-const thumbGridClass =
-    columns === 2 ? 'grid-cols-2' : columns === 3 ? 'grid-cols-3' : columns === 4 ? 'grid-cols-4' : 'grid-cols-5'
+const isMobile = inject(GridColumnsKey, false)
+const thumbGridClass = isMobile ? 'grid-cols-2' : 'grid-cols-5'
 
 const groupedTags = computed(() => {
     if (!gallery.value) return []

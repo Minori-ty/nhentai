@@ -30,7 +30,7 @@ const props = defineProps<{
 }>()
 
 const dm = inject(DownloadManagerKey, null)
-const columns = inject(GridColumnsKey, 5)
+const isMobile = inject(GridColumnsKey, false)
 
 const downloadedIds = ref<Set<number>>(new Set())
 const downloadProgress = ref<Map<number, number>>(new Map())
@@ -119,8 +119,7 @@ function getThumbnailUrl(thumbnail: string): string {
     return `https://t1.nhentai.net/${thumbnail}`
 }
 
-const gridColsClass =
-    columns === 2 ? 'grid-cols-2' : columns === 3 ? 'grid-cols-3' : columns === 4 ? 'grid-cols-4' : 'grid-cols-5'
+const gridColsClass = isMobile ? 'grid-cols-2' : 'grid-cols-5'
 </script>
 
 <template>
@@ -138,7 +137,13 @@ const gridColsClass =
                 class="group block text-current"
             >
                 <!-- 封面图 -->
-                <div class="relative mx-auto max-h-80 w-56.25 overflow-hidden rounded-lg bg-gray-800">
+                <div
+                    :class="
+                        isMobile
+                            ? 'relative mx-auto max-h-80 w-full overflow-hidden rounded-lg bg-gray-800'
+                            : 'relative mx-auto max-h-80 w-56.25 overflow-hidden rounded-lg bg-gray-800'
+                    "
+                >
                     <!-- 已下载：绿色勾（点击可重新下载） -->
                     <button
                         v-if="dm && downloadedIds.has(item.id)"
@@ -205,7 +210,11 @@ const gridColsClass =
                 </div>
                 <!-- 漫画名 -->
                 <p
-                    class="mx-auto mt-2 line-clamp-2 flex w-56.25 items-center justify-center gap-1 text-center text-sm text-gray-300 transition-colors group-hover:text-white"
+                    :class="
+                        isMobile
+                            ? 'mx-auto mt-2 line-clamp-2 flex w-full items-center justify-center gap-1 text-center text-sm text-gray-300 transition-colors group-hover:text-white'
+                            : 'mx-auto mt-2 line-clamp-2 flex w-56.25 items-center justify-center gap-1 text-center text-sm text-gray-300 transition-colors group-hover:text-white'
+                    "
                 >
                     <img
                         v-if="getLangIcon(item.tag_ids)"
