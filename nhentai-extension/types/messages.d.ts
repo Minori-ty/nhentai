@@ -1,4 +1,4 @@
-import { MsgTypeEnum, MsgTargetEnum } from '@/enums'
+import { MsgTypeEnum, MsgTargetEnum } from '@nhentai/shared/enums'
 
 /** content script → background: 发起下载请求 */
 export interface DownloadRequest {

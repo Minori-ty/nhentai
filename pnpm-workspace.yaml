@@ -1,0 +1,7 @@
+packages:
+  - 'nhentai-extension'
+  - 'nhentai-tampermonkey'
+  - 'packages/*'
+allowBuilds:
+  esbuild: set this to true or false
+  spawn-sync: set this to true or false

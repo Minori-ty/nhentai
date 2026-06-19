@@ -12,10 +12,9 @@
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "paths": {
-            "@nhentai/shared": ["../packages/shared/src"],
-            "@nhentai/shared/*": ["../packages/shared/src/*"],
-            "@/*": ["../packages/shared/src/*"]
+            "@nhentai/shared": ["./src/index.ts"],
+            "@nhentai/shared/*": ["./src/*"]
         }
     },
-    "include": ["src/**/*", "../packages/shared/src/**/*"]
+    "include": ["src/**/*"]
 }

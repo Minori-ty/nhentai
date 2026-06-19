@@ -1,8 +1,10 @@
 import { createApp } from 'vue'
-import App from '@/components/content/App.vue'
-import router from '@/components/content/router'
-import { setUserAvatar, setUserName } from '@/composables/useUserAvatar'
-import '@/assets/css/tailwind.css'
+import App from '@nhentai/shared/components/App.vue'
+import router from '@nhentai/shared/components/router'
+import { setUserAvatar, setUserName } from '@nhentai/shared/composables/useUserAvatar'
+import { DownloadManagerKey } from '@nhentai/shared/types/download'
+import { createDownloadManager } from '@/utils/downloadManager'
+import '@nhentai/shared/assets/css/tailwind.css'
 
 export default defineContentScript({
     matches: ['*://*.nhentai.net/*'],
@@ -35,6 +37,7 @@ export default defineContentScript({
         // 挂载 Vue 应用
         const app = createApp(App)
         app.use(router)
+        app.provide(DownloadManagerKey, createDownloadManager())
         app.mount('#app')
     },
 })

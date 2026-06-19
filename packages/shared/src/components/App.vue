@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import SearchHeader from '@nhentai/shared/components/SearchHeader.vue'
-import { triggerSearch } from '@nhentai/shared/composables/useSearchBus'
+import SearchHeader from './SearchHeader.vue'
+import { triggerSearch } from '../composables/useSearchBus'
 
 const router = useRouter()
 
@@ -36,7 +36,7 @@ onMounted(() => {
 
 <template>
     <SearchHeader @search="onSearch" />
-    <div>
+    <div class="py-6">
         <router-view />
     </div>
 </template>

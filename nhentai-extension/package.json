@@ -15,6 +15,7 @@
         "postinstall": "wxt prepare"
     },
     "dependencies": {
+        "@nhentai/shared": "workspace:*",
         "@tailwindcss/vite": "^4.3.0",
         "date-fns": "^4.4.0",
         "dexie": "^4.4.3",

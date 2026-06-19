@@ -1,4 +1,5 @@
 import { defineConfig } from 'wxt'
+import { resolve } from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 import type { Plugin } from 'vite'
 
@@ -41,6 +42,11 @@ export default defineConfig({
         },
     },
     vite: () => ({
+        resolve: {
+            alias: {
+                '@nhentai/shared': resolve(__dirname, '../packages/shared/src'),
+            },
+        },
         plugins: [tailwindcss(), asciiOnlyPlugin()],
     }),
 })
