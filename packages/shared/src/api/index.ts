@@ -28,8 +28,8 @@ export function getGallery(page: number): Promise<ISearchResponse> {
 
 export function getGalleryInfo(id: number): Promise<IGallery> {
     return request(`/galleries/${id}`, {
-        params: { include: 'related,suggestions,comments,favorite' },
-        auth: false,
+        params: { include: 'favorite' },
+        auth: true,
     })
 }
 

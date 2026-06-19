@@ -15,11 +15,7 @@ export interface IGallery {
     num_pages: number
     num_favorites: number
     pages: Page[]
-    comments: Comment[]
-    comment_count: number
-    related: Related[]
     is_favorited: boolean
-    suggestions: Suggestions
 }
 
 export interface Title {
@@ -58,49 +54,4 @@ export interface Page {
     thumbnail: string
     thumbnail_width: number
     thumbnail_height: number
-}
-
-export interface Comment {
-    id: number
-    gallery_id: number
-    poster: Poster
-    post_date: number
-    body: string
-}
-
-export interface Poster {
-    id: number
-    username: string
-    slug: string
-    avatar_url: string
-    is_superuser: boolean
-    is_staff: boolean
-}
-
-export interface Related {
-    id: number
-    media_id: string
-    english_title: string
-    japanese_title: string
-    thumbnail: string
-    thumbnail_width: number
-    thumbnail_height: number
-    num_pages: number
-    num_favorites: number
-    tag_ids: number[]
-    blacklisted: boolean
-}
-
-export interface Suggestions {
-    trending: any[]
-    active: any[]
-    mine: any[]
-    counts: Counts
-}
-
-export interface Counts {
-    trending: number
-    active: number
-    declined: number
-    hidden: number
 }
