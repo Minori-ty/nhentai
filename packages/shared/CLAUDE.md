@@ -78,7 +78,7 @@ src/
 
 ```ts
 import { inject } from 'vue'
-import { GridColumnsKey } from '../types/layout'
+import { GridColumnsKey } from '@/types/layout'
 
 const columns = inject(GridColumnsKey, 5) // extension defaults to 5, tampermonkey provides 2
 const isMobile = columns <= 2
@@ -91,7 +91,7 @@ const isMobile = columns <= 2
 
 ```ts
 import { inject } from 'vue'
-import { DownloadManagerKey } from '../types/download'
+import { DownloadManagerKey } from '@/types/download'
 
 const dm = inject(DownloadManagerKey, null)
 // dm === null on tampermonkey → all download UI hidden via v-if="dm"
@@ -117,7 +117,7 @@ All 6 tag-type browse pages (tag, group, artist, character, language, category) 
 ### enum-plus Label Lookup
 
 ```ts
-import { TagTypeEnum } from '../enums'
+import { TagTypeEnum } from '@/enums'
 const label = TagTypeEnum.label(tagType) // 'character' → 'Characters'
 ```
 

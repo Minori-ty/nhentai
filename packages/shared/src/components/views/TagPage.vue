@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { useTagPage } from '../../composables/useTagPage'
-import { TagTypeEnum, type TagType } from '../../enums'
-import SortBar from '../SortBar.vue'
-import GalleryGrid from '../GalleryGrid.vue'
-import PageIndicator from '../PageIndicator.vue'
+import { useTagPage } from '@nhentai/shared/composables/useTagPage'
+import { TagTypeEnum, type TagType } from '@nhentai/shared/enums'
+import SortBar from '@nhentai/shared/components/SortBar.vue'
+import GalleryGrid from '@nhentai/shared/components/GalleryGrid.vue'
+import PageIndicator from '@nhentai/shared/components/PageIndicator.vue'
 
 const props = defineProps<{
     tagType: TagType

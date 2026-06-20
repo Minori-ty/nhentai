@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { ref, onMounted, computed } from 'vue'
-import { getGallery, getPopular } from '../../api'
-import type { IResult } from '../../api/index.d'
-import { useInfiniteScroll } from '../../composables/useInfiniteScroll'
-import GalleryGrid from '../GalleryGrid.vue'
-import PageIndicator from '../PageIndicator.vue'
+import { getGallery, getPopular } from '@nhentai/shared/api'
+import type { IResult } from '@nhentai/shared/api/index.d'
+import { useInfiniteScroll } from '@nhentai/shared/composables/useInfiniteScroll'
+import GalleryGrid from '@nhentai/shared/components/GalleryGrid.vue'
+import PageIndicator from '@nhentai/shared/components/PageIndicator.vue'
 
 const results = ref<(IResult & { _page: number })[]>([])
 const page = ref(1)
