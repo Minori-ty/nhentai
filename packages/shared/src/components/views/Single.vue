@@ -67,7 +67,7 @@ onMounted(async () => {
             <div v-for="page in gallery.pages" :key="page.number" class="relative shrink-0">
                 <!-- 页码 -->
                 <span class="absolute top-3 left-3 z-10 rounded bg-black/60 px-3 py-1 text-sm font-semibold text-white">
-                    #{{ page.number }} / {{ gallery.num_pages }}
+                    {{ page.number }} / {{ gallery.num_pages }}
                 </span>
                 <img
                     :src="getImageUrl(page, gallery.media_id)"

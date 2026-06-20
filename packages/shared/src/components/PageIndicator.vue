@@ -47,8 +47,8 @@ onUnmounted(() => {
 <template>
     <div
         :class="[
-            'pointer-events-none fixed z-50 rounded-lg border border-gray-700 bg-gray-800/90 px-3 py-2 text-base text-gray-300 shadow-lg backdrop-blur select-none',
-            isMobile ? 'top-24 right-0' : 'top-32 right-4',
+            'pointer-events-none fixed z-50 border border-gray-700 bg-gray-800/90 px-3 py-2 text-base text-gray-300 shadow-lg backdrop-blur select-none',
+            isMobile ? 'top-24 right-0 rounded-l-lg' : 'top-32 right-4 rounded-lg',
         ]"
     >
         <span class="font-bold text-indigo-400">{{ currentPage }}</span>
