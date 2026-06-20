@@ -26,3 +26,5 @@ web-ext.config.ts
 .agents
 dist
 *.tsbuildinfo
+
+.vite-inspect

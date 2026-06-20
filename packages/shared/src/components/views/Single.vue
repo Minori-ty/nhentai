@@ -18,7 +18,10 @@ function getImageUrl(page: { number: number; path: string }, _mediaId: string): 
 
 function getImageStyle(page: { width: number; height: number }) {
     if (isMobile) {
-        return { width: '100%' }
+        const ratio = page.width / page.height
+        const w = window.innerWidth
+        const h = Math.round(w / ratio)
+        return { width: `${w}px`, height: `${h}px` }
     }
     const ratio = page.width / page.height
     const h = Math.round(window.innerHeight * 0.9)
@@ -64,7 +67,7 @@ onMounted(async () => {
             <div v-for="page in gallery.pages" :key="page.number" class="relative shrink-0">
                 <!-- 页码 -->
                 <span class="absolute top-3 left-3 z-10 rounded bg-black/60 px-3 py-1 text-sm font-semibold text-white">
-                    #{{ page.number }}
+                    #{{ page.number }} / {{ gallery.num_pages }}
                 </span>
                 <img
                     :src="getImageUrl(page, gallery.media_id)"

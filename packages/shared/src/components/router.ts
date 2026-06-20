@@ -4,12 +4,7 @@ import Search from './views/Search.vue'
 import Detail from './views/Detail.vue'
 import Favorites from './views/Favorites.vue'
 import Single from './views/Single.vue'
-import Tag from './views/Tag.vue'
-import Group from './views/Group.vue'
-import Artist from './views/Artist.vue'
-import Character from './views/Character.vue'
-import Language from './views/Language.vue'
-import Category from './views/Category.vue'
+import TagPage from './views/TagPage.vue'
 
 const router = createRouter({
     history: createWebHashHistory(),
@@ -45,32 +40,38 @@ const router = createRouter({
         {
             path: '/tag/:tag',
             name: 'Tag',
-            component: Tag,
+            component: TagPage,
+            props: { tagType: 'tag' },
         },
         {
             path: '/group/:group',
             name: 'Group',
-            component: Group,
+            component: TagPage,
+            props: { tagType: 'group' },
         },
         {
             path: '/artist/:artist',
             name: 'Artist',
-            component: Artist,
+            component: TagPage,
+            props: { tagType: 'artist' },
         },
         {
             path: '/character/:character',
             name: 'Character',
-            component: Character,
+            component: TagPage,
+            props: { tagType: 'character' },
         },
         {
             path: '/language/:language',
             name: 'Language',
-            component: Language,
+            component: TagPage,
+            props: { tagType: 'language' },
         },
         {
             path: '/category/:category',
             name: 'Category',
-            component: Category,
+            component: TagPage,
+            props: { tagType: 'category' },
         },
     ],
 })

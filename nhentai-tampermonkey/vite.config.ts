@@ -16,7 +16,13 @@ export default defineConfig({
         },
     },
     plugins: [
-        vue(),
+        vue({
+            template: {
+                compilerOptions: {
+                    whitespace: 'condense', // 压缩模板空白，减少编译量
+                },
+            },
+        }),
         tailwindcss(),
         monkey({
             entry: 'src/main.ts',
@@ -32,7 +38,11 @@ export default defineConfig({
                 externalGlobals: {
                     vue: cdn.jsdelivr('Vue', 'dist/vue.global.prod.js'),
                     'vue-router': cdn.jsdelivr('VueRouter', 'dist/vue-router.global.prod.js'),
-                    'date-fns': cdn.jsdelivr('dateFns', 'cdn.min.js'),
+                    // date-fns v4 CDN files moved to @date-fns/cdn
+                    'date-fns': [
+                        'dateFns',
+                        (version: string) => `https://cdn.jsdelivr.net/npm/@date-fns/cdn@${version}/cdn.min.js`,
+                    ],
                     // lodash-es has no CDN global build; map to lodash's `_` global
                     'lodash-es': [
                         '_',
@@ -42,4 +52,7 @@ export default defineConfig({
             },
         }),
     ],
+    build: {
+        minify: true,
+    },
 })

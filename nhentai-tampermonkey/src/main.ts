@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import router from './router'
+import router from '@nhentai/shared/components/router'
 import { setUserAvatar, setUserName } from '@nhentai/shared/composables/useUserAvatar'
 import { GridColumnsKey } from '@nhentai/shared/types/layout'
 import '@nhentai/shared/assets/css/tailwind.css'

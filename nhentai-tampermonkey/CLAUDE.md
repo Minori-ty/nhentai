@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 nHentai Tampermonkey Userscript — mobile-optimized (2-column layout, no download) alternative to the Chrome extension. Built with **Vite** + **vite-plugin-monkey** + Vue 3 Composition API + Tailwind CSS v4.
 
-The Vue SPA code lives in `@nhentai/shared` ([`../packages/shared/`](../packages/shared/)). This package is a thin shell: entry point, router, and platform-specific wiring (mobile layout, CDN externals).
+The Vue SPA code lives in `@nhentai/shared` ([`../packages/shared/`](../packages/shared/)). This package is a thin shell: entry point, root App wrapper, and platform-specific wiring (mobile layout, CDN externals).
 
 ## Commands
 
@@ -25,11 +25,10 @@ The Vue SPA code lives in `@nhentai/shared` ([`../packages/shared/`](../packages
 src/
   main.ts           — Entry point: scrapes avatar/username, clears body, mounts Vue app
   App.vue           — Root wrapper: SearchHeader + <router-view>, onMounted route redirect
-  router.ts         — Vue Router (hash mode), imports all 11 views from @nhentai/shared
   vite-env.d.ts     — Vite/monkey type references + *.vue module declaration
 ```
 
-All 4 source files are thin wrappers. The actual UI/API/composables live in `@nhentai/shared`.
+All 3 source files are thin wrappers. The router is imported directly from `@nhentai/shared/components/router` (no local copy). The actual UI/API/composables live in `@nhentai/shared`.
 
 ### Platform differences from Extension
 
@@ -61,6 +60,7 @@ app.provide(GridColumnsKey, 2)
 
 See [packages/shared/CLAUDE.md](../packages/shared/CLAUDE.md) for full shared package documentation. Key things from this package's perspective:
 
+- Router imported as `@nhentai/shared/components/router`
 - Views imported as `@nhentai/shared/components/views/*`
 - Components imported as `@nhentai/shared/components/*`
 - Composables imported as `@nhentai/shared/composables/*`

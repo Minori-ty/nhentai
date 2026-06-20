@@ -36,7 +36,7 @@ src/
 │
 ├── components/
 │   ├── App.vue           — Root: SearchHeader + <router-view>, onMounted route redirect
-│   ├── router.ts         — Vue Router (hash mode), 11 routes
+│   ├── router.ts         — Vue Router (hash mode), 11 routes, 6 view components
 │   ├── SearchHeader.vue  — Sticky top bar: search, favorites, avatar
 │   │                       Desktop: inline buttons. Mobile: hamburger dropdown.
 │   ├── SortBar.vue       — Sort mode selector (Date/Today/Week/All-Time)
@@ -52,12 +52,8 @@ src/
 │       ├── Detail.vue    — Gallery detail (responsive: flex-row desktop, flex-col mobile)
 │       ├── Single.vue    — Scroll-through page viewer (responsive image sizing)
 │       ├── Favorites.vue — User favorites with search
-│       ├── Tag.vue       — Tag browser (driven by useTagPage)
-│       ├── Group.vue     — Group browser
-│       ├── Artist.vue    — Artist browser
-│       ├── Character.vue — Character browser
-│       ├── Language.vue  — Language browser
-│       └── Category.vue  — Category browser
+│       └── TagPage.vue   — Generic tag-type browser (tag/group/artist/character/language/category)
+│                           driven by useTagPage, differentiated via tagType prop
 │
 ├── types/
 │   ├── download.ts       — DownloadManager interface + DownloadManagerKey InjectionKey
@@ -104,6 +100,26 @@ const dm = inject(DownloadManagerKey, null)
 ### Search Bus
 
 `useSearchBus.ts` exports a `searchBus` ref. `SearchHeader.vue` watches it to sync the input. `Search.vue` and `App.vue` use `triggerSearch()` to fire searches. The `ts` field (timestamp) prevents the initial empty watch from triggering.
+
+### Tag Page Pattern
+
+All 6 tag-type browse pages (tag, group, artist, character, language, category) use a single `TagPage.vue` component. The route passes `tagType` as a static prop:
+
+```ts
+// router.ts
+{ path: '/tag/:tag', component: TagPage, props: { tagType: 'tag' } }
+{ path: '/group/:group', component: TagPage, props: { tagType: 'group' } }
+// ... etc
+```
+
+`useTagPage(tagType)` reads `route.params[tagType]` for the tag name and handles all data fetching, pagination, and sort logic.
+
+### enum-plus Label Lookup
+
+```ts
+import { TagTypeEnum } from '../enums'
+const label = TagTypeEnum.label(tagType) // 'character' → 'Characters'
+```
 
 ### Tailwind v4 Source Scanning
 

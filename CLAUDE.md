@@ -34,7 +34,7 @@ All commands run from the monorepo root:
 
 ## Shared Package (`packages/shared/`)
 
-See [packages/shared/CLAUDE.md](packages/shared/CLAUDE.md) for full details. Key pattern:
+See [packages/shared/CLAUDE.md](packages/shared/CLAUDE.md) for full details. Key import pattern:
 
 ```
 @nhentai/shared/           imported as
@@ -49,9 +49,10 @@ See [packages/shared/CLAUDE.md](packages/shared/CLAUDE.md) for full details. Key
 
 ## Platform Differences
 
-| Feature              | Extension                               | Tampermonkey                 |
-| -------------------- | --------------------------------------- | ---------------------------- |
-| `GridColumnsKey`     | 5 (default)                             | 2                            |
-| `DownloadManagerKey` | Real impl (IndexedDB + browser.runtime) | Not provided (`null`)        |
-| Tailwind             | `@tailwindcss/vite` via WXT             | `@tailwindcss/vite` via Vite |
-| Vue/Router           | Bundled in extension                    | External CDN globals         |
+| Feature              | Extension                                                | Tampermonkey                 |
+| -------------------- | -------------------------------------------------------- | ---------------------------- |
+| `GridColumnsKey`     | 5 (default)                                              | 2                            |
+| `DownloadManagerKey` | Real impl (IndexedDB + browser.runtime)                  | Not provided (`null`)        |
+| Tailwind             | `@tailwindcss/vite` via WXT                              | `@tailwindcss/vite` via Vite |
+| Vue/Router           | Bundled in extension                                     | External CDN globals         |
+| Router source        | `import router from '@nhentai/shared/components/router'` | Same                         |
