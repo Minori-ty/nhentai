@@ -49,8 +49,9 @@ types/
 utils/
   AsyncTaskPool.ts       — Concurrency pool for parallel downloads
   downloadManager.ts     — DownloadManager impl wrapping MediaService + browser.runtime messages
-wxt.config.ts            — WXT config: Vue module, Tailwind plugin, ascii-only output plugin,
-                           @nhentai/shared resolve alias
+wxt.config.ts            — WXT config: @wxt-dev/module-vue, @wxt-dev/auto-icons (auto-generates
+                           icons from assets/icon.png, no extra config needed), @tailwindcss/vite,
+                           ascii-only output plugin
 ```
 
 ### Shared SPA (in `@nhentai/shared`)

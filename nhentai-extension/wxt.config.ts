@@ -24,11 +24,6 @@ function asciiOnlyPlugin(): Plugin {
 
 export default defineConfig({
     modules: ['@wxt-dev/module-vue', '@wxt-dev/auto-icons'],
-    autoIcons: {
-        baseIconPath: 'assets/icon.png',
-        sizes: [128, 48, 32, 16],
-        developmentIndicator: 'grayscale',
-    },
     manifest: {
         name: 'nhentai-extension',
         permissions: ['offscreen'],
