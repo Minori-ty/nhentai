@@ -1,8 +1,10 @@
-import { createApp } from 'vue'
-import App from './App.vue'
 import router from '@nhentai/shared/components/router'
 import { setUserAvatar, setUserName } from '@nhentai/shared/composables/useUserAvatar'
 import { GridColumnsKey } from '@nhentai/shared/types/layout'
+import { createApp } from 'vue'
+
+import App from './App.vue'
+
 import '@nhentai/shared/assets/css/tailwind.css'
 
 // 在清除之前获取头像 URL

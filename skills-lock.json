@@ -1,23 +1,23 @@
 {
-  "version": 1,
-  "skills": {
-    "karpathy-guidelines": {
-      "source": "forrestchang/andrej-karpathy-skills",
-      "sourceType": "github",
-      "skillPath": "skills/karpathy-guidelines/SKILL.md",
-      "computedHash": "0ec1641120accbb458780e0bd19a50a4182f2b97863e90851b91307f29802c9f"
-    },
-    "skill-creator": {
-      "source": "anthropics/skills",
-      "sourceType": "github",
-      "skillPath": "skills/skill-creator/SKILL.md",
-      "computedHash": "7e3c9cd74e9e2b4828527a857170e86310f2dab5ea8030a9043df2c7e6c88857"
-    },
-    "wxt-browser-extensions": {
-      "source": "pproenca/dot-skills",
-      "sourceType": "github",
-      "skillPath": "skills/.experimental/wxt-browser-extensions/SKILL.md",
-      "computedHash": "c80314c3b5a1c394244bc4f57ad95f3d6f30938417265da9254bb693ca124e0c"
+    "version": 1,
+    "skills": {
+        "karpathy-guidelines": {
+            "source": "forrestchang/andrej-karpathy-skills",
+            "sourceType": "github",
+            "skillPath": "skills/karpathy-guidelines/SKILL.md",
+            "computedHash": "0ec1641120accbb458780e0bd19a50a4182f2b97863e90851b91307f29802c9f"
+        },
+        "skill-creator": {
+            "source": "anthropics/skills",
+            "sourceType": "github",
+            "skillPath": "skills/skill-creator/SKILL.md",
+            "computedHash": "7e3c9cd74e9e2b4828527a857170e86310f2dab5ea8030a9043df2c7e6c88857"
+        },
+        "wxt-browser-extensions": {
+            "source": "pproenca/dot-skills",
+            "sourceType": "github",
+            "skillPath": "skills/.experimental/wxt-browser-extensions/SKILL.md",
+            "computedHash": "c80314c3b5a1c394244bc4f57ad95f3d6f30938417265da9254bb693ca124e0c"
+        }
     }
-  }
 }

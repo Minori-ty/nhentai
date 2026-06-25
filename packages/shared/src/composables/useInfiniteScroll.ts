@@ -1,5 +1,5 @@
-import { onMounted, onUnmounted } from 'vue'
 import { throttle } from 'lodash-es'
+import { onMounted, onUnmounted } from 'vue'
 
 export function useInfiniteScroll(loadMore: () => void) {
     const handleScroll = throttle(() => {

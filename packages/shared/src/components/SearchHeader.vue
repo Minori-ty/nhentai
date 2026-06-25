@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import { ref, watch, inject, onMounted, onUnmounted, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
-import { userAvatar, userName } from '../composables/useUserAvatar'
+
+import logoSvg from '../assets/logo.svg'
 import { searchBus } from '../composables/useSearchBus'
+import { userAvatar, userName } from '../composables/useUserAvatar'
 import { GridColumnsKey } from '../types/layout'
 import BaseBtn from './BaseBtn.vue'
-import logoSvg from '../assets/logo.svg'
 
 const emit = defineEmits<{
     search: [query: string]

@@ -1,6 +1,7 @@
+import { throttle } from 'lodash-es'
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { throttle } from 'lodash-es'
+
 import { getTags, getTagInfo } from '../api'
 import type { IResult } from '../api/index.d'
 import { SortEnum, type SortMode, type TagType } from '../enums'

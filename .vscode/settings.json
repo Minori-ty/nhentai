@@ -1,15 +1,7 @@
 {
-    // ===== OXFMT =====
-    "editor.defaultFormatter": "oxc.oxc-vscode",
     "editor.formatOnSave": true,
-    // 明确启用 oxfmt（可选，但推荐）
-    "oxc.enable.oxfmt": true,
-    // 指定配置文件路径（非常重要，防止“没生效”）
-    "oxc.fmt.configPath": ".oxfmtrc.json",
-    // ===== OXLINT =====
-    "oxc.enable.oxlint": true,
-    // 保存时自动修复 lint
     "editor.codeActionsOnSave": {
+        "source.format.oxc": "always",
         "source.fixAll.oxc": "always"
     },
     "[vue]": {
@@ -18,7 +10,13 @@
     "[typescript]": {
         "editor.defaultFormatter": "oxc.oxc-vscode"
     },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "oxc.oxc-vscode"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "oxc.oxc-vscode"
+    },
     "[json]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.defaultFormatter": "oxc.oxc-vscode"
     }
 }

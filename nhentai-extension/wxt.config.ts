@@ -1,6 +1,6 @@
-import { defineConfig } from 'wxt'
 import tailwindcss from '@tailwindcss/vite'
 import type { Plugin } from 'vite'
+import { defineConfig } from 'wxt'
 
 function asciiOnlyPlugin(): Plugin {
     return {

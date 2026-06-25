@@ -17,8 +17,8 @@
         "compile:tampermonkey": "pnpm --filter nhentai-tampermonkey exec vue-tsc -b",
         "compile": "pnpm run compile:extension && pnpm run compile:tampermonkey",
         "check": "pnpm run compile && pnpm run build",
-        "lint": "oxlint . --fix",
-        "format": "oxfmt .",
+        "lint": "oxlint",
+        "format": "oxfmt",
         "prepare": "husky"
     },
     "devDependencies": {

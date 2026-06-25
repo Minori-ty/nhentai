@@ -1,8 +1,9 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import Home from './views/Home.vue'
-import Search from './views/Search.vue'
+
 import Detail from './views/Detail.vue'
 import Favorites from './views/Favorites.vue'
+import Home from './views/Home.vue'
+import Search from './views/Search.vue'
 import Single from './views/Single.vue'
 import TagPage from './views/TagPage.vue'
 

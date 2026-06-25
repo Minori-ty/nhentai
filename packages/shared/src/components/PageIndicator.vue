@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted, inject } from 'vue'
 import { throttle } from 'lodash-es'
+import { ref, onMounted, onUnmounted, inject } from 'vue'
+
 import { GridColumnsKey } from '../types/layout'
 
 const props = defineProps<{

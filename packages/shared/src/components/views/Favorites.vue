@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { ref, onMounted, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useInfiniteScroll } from '@nhentai/shared/composables/useInfiniteScroll'
 import { getFavorites } from '@nhentai/shared/api'
 import type { IResult } from '@nhentai/shared/api/index.d'
+import BaseBtn from '@nhentai/shared/components/BaseBtn.vue'
 import GalleryGrid from '@nhentai/shared/components/GalleryGrid.vue'
 import PageIndicator from '@nhentai/shared/components/PageIndicator.vue'
-import BaseBtn from '@nhentai/shared/components/BaseBtn.vue'
+import { useInfiniteScroll } from '@nhentai/shared/composables/useInfiniteScroll'
+import { ref, onMounted, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()

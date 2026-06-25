@@ -37,5 +37,6 @@
         "defineContentScript": "readonly",
         "__dirname": "readonly",
         "Buffer": "readonly"
-    }
+    },
+    "ignorePatterns": ["node_modules", "dist"]
 }

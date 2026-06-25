@@ -1,15 +1,15 @@
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted, inject, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import { getGalleryInfo, favoriteGallery } from '@nhentai/shared/api'
 import type { IGallery, Tag } from '@nhentai/shared/api/info.d'
-import { handleImageError } from '@nhentai/shared/utils/imageFallback'
+import BaseBtn from '@nhentai/shared/components/BaseBtn.vue'
+import PageLoader from '@nhentai/shared/components/PageLoader.vue'
 import { TagTypeEnum, LangEnum } from '@nhentai/shared/enums'
 import { DownloadManagerKey } from '@nhentai/shared/types/download'
 import { GridColumnsKey } from '@nhentai/shared/types/layout'
-import BaseBtn from '@nhentai/shared/components/BaseBtn.vue'
-import PageLoader from '@nhentai/shared/components/PageLoader.vue'
+import { handleImageError } from '@nhentai/shared/utils/imageFallback'
 import { intervalToDuration, format } from 'date-fns'
+import { ref, onMounted, onUnmounted, inject, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()

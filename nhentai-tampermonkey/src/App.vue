@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import SearchHeader from '@nhentai/shared/components/SearchHeader.vue'
 import { triggerSearch } from '@nhentai/shared/composables/useSearchBus'
+import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 const router = useRouter()
 

@@ -1,6 +1,7 @@
-import MediaService from '../db'
 import { MsgTypeEnum } from '@nhentai/shared/enums'
 import type { DownloadManager } from '@nhentai/shared/types/download'
+
+import MediaService from '../db'
 import type { ContentMessage } from '../types/messages.d'
 
 export function createDownloadManager(): DownloadManager {

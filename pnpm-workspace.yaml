@@ -1,8 +1,8 @@
 packages:
-  - 'nhentai-extension'
-  - 'nhentai-tampermonkey'
-  - 'packages/*'
+    - 'nhentai-extension'
+    - 'nhentai-tampermonkey'
+    - 'packages/*'
 allowBuilds:
-  esbuild: true
-  sharp: true
-  spawn-sync: true
+    esbuild: true
+    sharp: true
+    spawn-sync: true

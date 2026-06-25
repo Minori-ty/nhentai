@@ -1,13 +1,14 @@
 <script lang="ts" setup>
 import { ref, watch, onUnmounted, inject, useTemplateRef } from 'vue'
+
 import type { IResult } from '../api/index.d'
-import { handleImageError } from '../utils/imageFallback'
 import { LangEnum } from '../enums'
 import { DownloadManagerKey } from '../types/download'
 import { GridColumnsKey } from '../types/layout'
+import { handleImageError } from '../utils/imageFallback'
 import ConfirmDialog from './ConfirmDialog.vue'
-import PageLoader from './PageLoader.vue'
 import LoadingSpinner from './LoadingSpinner.vue'
+import PageLoader from './PageLoader.vue'
 
 function getLangIcon(tagIds: number[]): string | undefined {
     for (const item of LangEnum.items) {

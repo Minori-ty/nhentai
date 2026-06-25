@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import SearchHeader from './SearchHeader.vue'
+
 import { triggerSearch } from '../composables/useSearchBus'
+import SearchHeader from './SearchHeader.vue'
 
 const router = useRouter()
 

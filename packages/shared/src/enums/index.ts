@@ -1,7 +1,8 @@
 import { Enum } from 'enum-plus'
+
 import chineseSvg from '../assets/chinese.svg'
-import japanSvg from '../assets/japan.svg'
 import englishSvg from '../assets/english.svg'
+import japanSvg from '../assets/japan.svg'
 
 // ===== 排序方式 =====
 export const SortEnum = Enum({

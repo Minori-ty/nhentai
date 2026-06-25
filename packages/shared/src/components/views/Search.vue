@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import { ref, onMounted, computed, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useInfiniteScroll } from '@nhentai/shared/composables/useInfiniteScroll'
 import { searchGallery } from '@nhentai/shared/api'
 import type { IResult } from '@nhentai/shared/api/index.d'
-import { searchBus, triggerSearch } from '@nhentai/shared/composables/useSearchBus'
-import SortBar from '@nhentai/shared/components/SortBar.vue'
 import GalleryGrid from '@nhentai/shared/components/GalleryGrid.vue'
+import SortBar from '@nhentai/shared/components/SortBar.vue'
+import { useInfiniteScroll } from '@nhentai/shared/composables/useInfiniteScroll'
+import { searchBus, triggerSearch } from '@nhentai/shared/composables/useSearchBus'
 import { type SortMode } from '@nhentai/shared/enums'
+import { ref, onMounted, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()

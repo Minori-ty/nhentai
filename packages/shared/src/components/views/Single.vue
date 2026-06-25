@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { ref, onMounted, inject } from 'vue'
-import { useRoute } from 'vue-router'
 import { getGalleryInfo } from '@nhentai/shared/api'
 import type { IGallery } from '@nhentai/shared/api/info.d'
-import { GridColumnsKey } from '@nhentai/shared/types/layout'
 import PageLoader from '@nhentai/shared/components/PageLoader.vue'
+import { GridColumnsKey } from '@nhentai/shared/types/layout'
+import { ref, onMounted, inject } from 'vue'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const gallery = ref<IGallery | null>(null)

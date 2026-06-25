@@ -1,5 +1,5 @@
 @import 'tailwindcss' important;
-@source "../../";
+@source '../../';
 
 html,
 body {

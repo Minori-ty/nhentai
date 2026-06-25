@@ -1,9 +1,11 @@
-import { createApp } from 'vue'
 import App from '@nhentai/shared/components/App.vue'
 import router from '@nhentai/shared/components/router'
 import { setUserAvatar, setUserName } from '@nhentai/shared/composables/useUserAvatar'
 import { DownloadManagerKey } from '@nhentai/shared/types/download'
+import { createApp } from 'vue'
+
 import { createDownloadManager } from '@/utils/downloadManager'
+
 import '@nhentai/shared/assets/css/tailwind.css'
 
 export default defineContentScript({

@@ -1,9 +1,10 @@
-import { createWriteStream } from 'streamsaver'
-import { Zip, ZipPassThrough } from 'fflate'
-import { TaskPool } from '@/utils/AsyncTaskPool'
 import { getGalleryInfo } from '@nhentai/shared/api'
-import type { OffscreenCommand } from '@/types/messages.d'
 import { MsgTypeEnum, MsgTargetEnum } from '@nhentai/shared/enums'
+import { Zip, ZipPassThrough } from 'fflate'
+import { createWriteStream } from 'streamsaver'
+
+import type { OffscreenCommand } from '@/types/messages.d'
+import { TaskPool } from '@/utils/AsyncTaskPool'
 
 browser.runtime.onMessage.addListener(async (data: OffscreenCommand) => {
     if (data.target !== MsgTargetEnum.Offscreen) return
