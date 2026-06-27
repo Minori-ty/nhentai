@@ -11,7 +11,7 @@ import { intervalToDuration, format } from 'date-fns'
 import { ref, onMounted, onUnmounted, inject, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-const route = useRoute()
+const route = useRoute<'Detail'>()
 const router = useRouter()
 const gallery = ref<IGallery | null>(null)
 const loading = ref(true)
@@ -120,8 +120,12 @@ async function handleDownload() {
 }
 
 function goTag(tag: Tag) {
-    const route = TagTypeEnum.findBy('value', tag.type)?.raw.route
-    if (route) router.push({ name: route, params: { [tag.type]: tag.slug } })
+    for (const item of TagTypeEnum.items) {
+        if (item.value === tag.type) {
+            router.push({ name: item.raw.route, params: { name: tag.slug } })
+            return
+        }
+    }
 }
 
 function goSingle() {

@@ -6,7 +6,7 @@ import { GridColumnsKey } from '@nhentai/shared/types/layout'
 import { ref, onMounted, inject } from 'vue'
 import { useRoute } from 'vue-router'
 
-const route = useRoute()
+const route = useRoute<'Single'>()
 const gallery = ref<IGallery | null>(null)
 const loading = ref(true)
 const loadedCount = ref(0)

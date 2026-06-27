@@ -26,6 +26,8 @@ export const TagTypeEnum = Enum({
 
 export type TagType = typeof TagTypeEnum.valueType
 
+export type TagRouteName = 'Tag' | 'Group' | 'Artist' | 'Character' | 'Language' | 'Category'
+
 // ===== 消息类型 =====
 export const MsgTypeEnum = Enum({
     Download: { value: 'download', label: '下载' },
