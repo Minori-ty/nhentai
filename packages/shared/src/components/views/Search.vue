@@ -64,7 +64,7 @@ function setSort(mode: SortMode) {
     doSearch()
 }
 
-useInfiniteScroll(loadMore)
+useInfiniteScroll(loadMore, page)
 
 watch(searchBus, ({ query: q, ts }) => {
     if (ts === 0) return

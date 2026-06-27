@@ -1,10 +1,10 @@
-import { throttle } from 'lodash-es'
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { getTags, getTagInfo } from '../api'
 import type { IResult } from '../api/index.d'
 import { SortEnum, type SortMode, type TagType } from '../enums'
+import { useInfiniteScroll } from './useInfiniteScroll'
 
 export function useTagPage(type: TagType) {
     const route = useRoute()
@@ -72,20 +72,10 @@ export function useTagPage(type: TagType) {
         router.push({ name: 'Detail', params: { id } })
     }
 
-    const handleScroll = throttle(() => {
-        const { scrollTop, clientHeight, scrollHeight } = document.documentElement
-        if (scrollTop + clientHeight >= scrollHeight * 0.7) {
-            loadMore()
-        }
-    }, 300)
+    useInfiniteScroll(loadMore, page)
 
     onMounted(() => {
         loadFirst()
-        window.addEventListener('scroll', handleScroll)
-    })
-
-    onUnmounted(() => {
-        window.removeEventListener('scroll', handleScroll)
     })
 
     return {

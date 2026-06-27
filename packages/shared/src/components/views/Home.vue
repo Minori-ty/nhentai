@@ -53,7 +53,7 @@ async function loadMore() {
     }
 }
 
-useInfiniteScroll(loadMore)
+useInfiniteScroll(loadMore, page)
 
 onMounted(() => {
     loadGallery()

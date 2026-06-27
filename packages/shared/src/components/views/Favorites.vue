@@ -76,7 +76,7 @@ function doSearch() {
     loadFavorites()
 }
 
-useInfiniteScroll(loadMore)
+useInfiniteScroll(loadMore, page)
 
 onMounted(() => {
     loadFavorites()
