@@ -25,8 +25,11 @@ function toggleMenu() {
 }
 
 function closeMenu(e: MouseEvent) {
-    if (menuRef.value && !menuRef.value.contains(e.target as Node)) {
-        menuOpen.value = false
+    const target = e.target
+    if (target instanceof Node) {
+        if (menuRef.value && !menuRef.value.contains(target)) {
+            menuOpen.value = false
+        }
     }
 }
 

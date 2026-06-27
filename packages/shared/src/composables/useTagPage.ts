@@ -6,8 +6,12 @@ import type { IResult } from '../api/index.d'
 import { SortEnum, type SortMode, type TagType } from '../enums'
 import { useInfiniteScroll } from './useInfiniteScroll'
 
+type UnionToStrRecord<T extends string> = {
+    [K in T]: string
+}
+
 export function useTagPage(type: TagType) {
-    const route = useRoute()
+    const route = useRoute<UnionToStrRecord<TagType>>()
     const router = useRouter()
 
     const name = route.params[type] as string

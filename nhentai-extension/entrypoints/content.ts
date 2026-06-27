@@ -4,12 +4,13 @@ import { setUserAvatar, setUserName } from '@nhentai/shared/composables/useUserA
 import { DownloadManagerKey } from '@nhentai/shared/types/download'
 import { createApp } from 'vue'
 
+import { preconnectImageCDNs } from '@nhentai/shared/utils/preconnect'
 import { createDownloadManager } from '@/utils/downloadManager'
 
 import '@nhentai/shared/assets/css/tailwind.css'
 
 export default defineContentScript({
-    matches: ['*://*.nhentai.net/*'],
+    matches: ['https://nhentai.net/*'],
     excludeMatches: Array.from({ length: 4 }, (_, i) => `https://i${i + 1}.nhentai.net/*`),
     main() {
         // 在清除之前获取头像 URL
@@ -26,6 +27,9 @@ export default defineContentScript({
         if (nameEl) {
             setUserName(nameEl.innerText.trim())
         }
+
+        // CDN 预连接
+        preconnectImageCDNs()
 
         // 清除 body 内容
         document.body.innerHTML = ''

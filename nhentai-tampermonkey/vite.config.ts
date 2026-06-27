@@ -26,7 +26,7 @@ export default defineConfig({
                 namespace: 'nhentai-tampermonkey',
                 name: 'nhentai-tampermonkey',
                 description: 'Enhanced mobile-friendly UI for nhentai.net',
-                match: ['*://*.nhentai.net/*'],
+                match: ['https://nhentai.net/*'],
                 exclude: ['*://i*.nhentai.net/*'],
             },
             build: {

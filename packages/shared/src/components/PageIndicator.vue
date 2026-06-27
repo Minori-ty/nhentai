@@ -20,14 +20,16 @@ function updateCurrentPage() {
     const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 10
     if (atBottom) {
         const last = items[items.length - 1]
-        currentPage.value = Number((last as HTMLElement).dataset.page)
+        if (!(last instanceof HTMLElement)) return
+        currentPage.value = Number(last.dataset.page)
         return
     }
 
     for (const item of items) {
         const rect = item.getBoundingClientRect()
         if (rect.bottom > 120) {
-            currentPage.value = Number((item as HTMLElement).dataset.page)
+            if (!(item instanceof HTMLElement)) return
+            currentPage.value = Number(item.dataset.page)
             return
         }
     }

@@ -3,6 +3,7 @@ import { setUserAvatar, setUserName } from '@nhentai/shared/composables/useUserA
 import { GridColumnsKey } from '@nhentai/shared/types/layout'
 import { createApp } from 'vue'
 
+import { preconnectImageCDNs } from '@nhentai/shared/utils/preconnect'
 import App from './App.vue'
 
 import '@nhentai/shared/assets/css/tailwind.css'
@@ -19,6 +20,9 @@ const nameEl = document.querySelector<HTMLElement>('#app > nav > div > ul.menu.r
 if (nameEl) {
     setUserName(nameEl.innerText.trim())
 }
+
+// CDN 预连接
+preconnectImageCDNs()
 
 // 清除 body 内容
 document.body.innerHTML = ''
