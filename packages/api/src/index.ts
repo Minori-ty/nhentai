@@ -16,7 +16,7 @@ export {
 
 // --- 类型 ---
 export type { ISearchResponse, IResult } from './api/types'
-export type { IGallery, IFavoriteResponse, Title, Tag, Page, Cover, Thumbnail } from './api/info.d'
+export type { IGallery, IFavoriteResponse, Title, Tag, Page, Cover, Thumbnail } from './api/info'
 export type { ITags } from './api/tags'
 
 // --- 枚举 ---

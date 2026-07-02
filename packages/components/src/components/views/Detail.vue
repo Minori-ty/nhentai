@@ -24,10 +24,11 @@ const thumbGridClass = isMobile ? 'grid-cols-2' : 'grid-cols-5'
 
 const groupedTags = computed(() => {
     if (!gallery.value) return []
+    const { tags } = gallery.value
     return TagTypeEnum.items
         .map((item) => ({
             label: item.label,
-            tags: gallery.value!.tags.filter((t) => t.type === item.value),
+            tags: tags.filter((t) => t.type === item.value),
         }))
         .filter((g) => g.tags.length > 0)
 })

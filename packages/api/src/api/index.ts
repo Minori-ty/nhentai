@@ -1,5 +1,5 @@
 import { SortEnum, type SortMode, type TagType } from '../enums'
-import type { IGallery, IFavoriteResponse } from './info.d'
+import type { IGallery, IFavoriteResponse } from './info'
 import { request } from './request'
 import type { ITags } from './tags'
 import type { ISearchResponse, IResult } from './types'
