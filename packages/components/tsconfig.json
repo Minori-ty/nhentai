@@ -1,11 +1,7 @@
 {
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
-        "outDir": "./dist",
-        "paths": {
-            "@nhentai/api": ["../api/src"],
-            "@nhentai/utils": ["../utils/src"]
-        }
+        "outDir": "./dist"
     },
     "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.vue"]
 }

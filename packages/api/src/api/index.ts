@@ -1,8 +1,8 @@
 import { SortEnum, type SortMode, type TagType } from '../enums'
-import type { ISearchResponse, IResult } from './index.d'
 import type { IGallery, IFavoriteResponse } from './info.d'
 import { request } from './request'
 import type { ITags } from './tags'
+import type { ISearchResponse, IResult } from './types'
 
 export function searchGallery({
     query = '',

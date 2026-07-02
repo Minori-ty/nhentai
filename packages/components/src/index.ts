@@ -1,3 +1,5 @@
+import './assets/css/tailwind.css'
+
 // --- 组件 ---
 export { default as App } from './components/App.vue'
 export { default as BaseBtn } from './components/BaseBtn.vue'
