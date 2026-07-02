@@ -136,6 +136,7 @@ const gridColsClass = isMobile ? 'grid-cols-2' : 'grid-cols-5'
                 :data-page="item._page"
                 :to="{ name: 'Detail', params: { id: item.id } }"
                 class="group block text-current"
+                target="_blank"
             >
                 <!-- 封面图 -->
                 <div

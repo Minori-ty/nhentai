@@ -3,7 +3,7 @@ import { getGalleryInfo } from '@nhentai/shared/api'
 import type { IGallery } from '@nhentai/shared/api/info.d'
 import PageLoader from '@nhentai/shared/components/PageLoader.vue'
 import { GridColumnsKey } from '@nhentai/shared/types/layout'
-import { ref, onMounted, inject } from 'vue'
+import { ref, onMounted, inject, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute<'Single'>()
@@ -11,6 +11,12 @@ const gallery = ref<IGallery | null>(null)
 const loading = ref(true)
 const loadedCount = ref(0)
 const isMobile = inject(GridColumnsKey, false)
+const listRef = ref<HTMLElement | null>(null)
+
+function resolveStartPage(): number {
+    const raw = parseInt(String(route.query.page || ''))
+    return Number.isFinite(raw) && raw >= 1 ? raw : 1
+}
 
 function getImageUrl(page: { number: number; path: string }, _mediaId: string): string {
     return `https://i1.nhentai.net/${page.path}`
@@ -49,10 +55,18 @@ function onImageError(event: Event) {
 
 onMounted(async () => {
     const id = Number(route.params.id)
+    const startPage = resolveStartPage()
     try {
         gallery.value = await getGalleryInfo(id)
     } finally {
         loading.value = false
+    }
+    if (startPage > 1 && startPage <= gallery.value!.num_pages) {
+        await nextTick()
+        const el = listRef.value?.querySelector(`[data-page="${startPage}"]`)
+        if (el) {
+            el.scrollIntoView()
+        }
     }
 })
 </script>
@@ -63,8 +77,8 @@ onMounted(async () => {
 
     <!-- 图片列表 -->
     <template v-else-if="gallery">
-        <div class="flex flex-col items-center gap-2 py-4">
-            <div v-for="page in gallery.pages" :key="page.number" class="relative shrink-0">
+        <div ref="listRef" class="flex flex-col items-center gap-2 py-4">
+            <div v-for="page in gallery.pages" :key="page.number" :data-page="page.number" class="relative shrink-0">
                 <!-- 页码 -->
                 <span class="absolute top-3 left-3 z-10 rounded bg-black/60 px-3 py-1 text-sm font-semibold text-white">
                     {{ page.number }} / {{ gallery.num_pages }}
