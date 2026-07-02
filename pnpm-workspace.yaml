@@ -1,6 +1,5 @@
 packages:
-    - 'nhentai-extension'
-    - 'nhentai-tampermonkey'
+    - 'apps/*'
     - 'packages/*'
 allowBuilds:
     esbuild: true

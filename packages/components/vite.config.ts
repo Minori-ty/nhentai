@@ -1,0 +1,28 @@
+import { resolve } from 'path'
+
+import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vite'
+import dts from 'vite-plugin-dts'
+
+export default defineConfig({
+    plugins: [vue(), dts({ insertTypesEntry: true })],
+    build: {
+        lib: {
+            entry: {
+                index: resolve(__dirname, 'src/index.ts'),
+                router: resolve(__dirname, 'src/router.ts'),
+            },
+            name: 'NHentaiComponents',
+            formats: ['es'],
+        },
+        rollupOptions: {
+            external: ['vue', 'vue-router', '@nhentai/api', '@nhentai/utils', 'date-fns', 'enum-plus', 'lodash-es'],
+            output: {
+                globals: {
+                    vue: 'Vue',
+                    'vue-router': 'VueRouter',
+                },
+            },
+        },
+    },
+})

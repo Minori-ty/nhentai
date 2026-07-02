@@ -1,0 +1,80 @@
+import { createRouter, createWebHashHistory } from 'vue-router'
+
+import Detail from './components/views/Detail.vue'
+import Favorites from './components/views/Favorites.vue'
+import Home from './components/views/Home.vue'
+import Search from './components/views/Search.vue'
+import Single from './components/views/Single.vue'
+import TagPage from './components/views/TagPage.vue'
+
+const router = createRouter({
+    history: createWebHashHistory(),
+    scrollBehavior() {
+        return { top: 0 }
+    },
+    routes: [
+        {
+            path: '/',
+            name: 'Home',
+            component: Home,
+        },
+        {
+            path: '/search',
+            name: 'Search',
+            component: Search,
+        },
+        {
+            path: '/detail/:id',
+            name: 'Detail',
+            component: Detail,
+        },
+        {
+            path: '/single/:id',
+            name: 'Single',
+            component: Single,
+        },
+        {
+            path: '/favorites',
+            name: 'Favorites',
+            component: Favorites,
+        },
+        {
+            path: '/tag/:name',
+            name: 'Tag',
+            component: TagPage,
+            props: { tagType: 'tag' },
+        },
+        {
+            path: '/group/:name',
+            name: 'Group',
+            component: TagPage,
+            props: { tagType: 'group' },
+        },
+        {
+            path: '/artist/:name',
+            name: 'Artist',
+            component: TagPage,
+            props: { tagType: 'artist' },
+        },
+        {
+            path: '/character/:name',
+            name: 'Character',
+            component: TagPage,
+            props: { tagType: 'character' },
+        },
+        {
+            path: '/language/:name',
+            name: 'Language',
+            component: TagPage,
+            props: { tagType: 'language' },
+        },
+        {
+            path: '/category/:name',
+            name: 'Category',
+            component: TagPage,
+            props: { tagType: 'category' },
+        },
+    ],
+})
+
+export default router
