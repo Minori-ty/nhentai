@@ -3,10 +3,11 @@ import { resolve } from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
-import dts from 'vite-plugin-dts'
+
+import { dtsPlugin } from '../../vite.lib'
 
 export default defineConfig({
-    plugins: [vue(), tailwindcss(), dts({ insertTypesEntry: true })],
+    plugins: [vue(), tailwindcss(), dtsPlugin],
     build: {
         lib: {
             entry: {
@@ -17,7 +18,7 @@ export default defineConfig({
             formats: ['es'],
         },
         rollupOptions: {
-            external: ['vue', 'vue-router', '@nhentai/api', '@nhentai/utils', 'date-fns', 'enum-plus', 'lodash-es'],
+            external: ['vue', 'vue-router', '@nhentai/api', '@nhentai/utils', 'date-fns', 'enum-plus'],
             output: {
                 globals: {
                     vue: 'Vue',

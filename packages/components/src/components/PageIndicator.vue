@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { throttle } from 'lodash-es'
+import { throttle } from '@nhentai/utils'
 import { ref, onMounted, onUnmounted, inject } from 'vue'
 
 import { GridColumnsKey } from '../types/layout'

@@ -38,11 +38,6 @@ export default defineConfig({
                         'dateFns',
                         (version: string) => `https://cdn.jsdelivr.net/npm/@date-fns/cdn@${version}/cdn.min.js`,
                     ],
-                    // lodash-es has no CDN global build; map to lodash's `_` global
-                    'lodash-es': [
-                        '_',
-                        (version: string) => `https://cdn.jsdelivr.net/npm/lodash@${version}/lodash.min.js`,
-                    ],
                 },
             },
         }),

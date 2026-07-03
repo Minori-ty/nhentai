@@ -30,12 +30,10 @@
         "@nhentai/api": "workspace:*",
         "@nhentai/utils": "workspace:*",
         "date-fns": "^4.4.0",
-        "enum-plus": "^3.1.8",
-        "lodash-es": "^4.18.1"
+        "enum-plus": "^3.1.8"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.3.2",
-        "@types/lodash-es": "^4.17.12",
         "@vitejs/plugin-vue": "^6.0.6",
         "typescript": "^5.9.3",
         "vite": "^8.0.12",

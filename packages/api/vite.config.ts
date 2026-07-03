@@ -1,10 +1,11 @@
 import { resolve } from 'path'
 
 import { defineConfig } from 'vite'
-import dts from 'vite-plugin-dts'
+
+import { dtsPlugin } from '../../vite.lib'
 
 export default defineConfig({
-    plugins: [dts({ insertTypesEntry: true })],
+    plugins: [dtsPlugin],
     build: {
         lib: {
             entry: resolve(__dirname, 'src/index.ts'),
