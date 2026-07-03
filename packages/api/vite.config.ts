@@ -1,11 +1,10 @@
 import { resolve } from 'path'
 
 import { defineConfig } from 'vite'
-
-import { dtsPlugin } from '../../vite.lib'
+import dts from 'vite-plugin-dts'
 
 export default defineConfig({
-    plugins: [dtsPlugin],
+    plugins: [dts({ insertTypesEntry: true })],
     build: {
         lib: {
             entry: resolve(__dirname, 'src/index.ts'),
@@ -13,8 +12,9 @@ export default defineConfig({
             fileName: 'index',
             formats: ['es'],
         },
-        rollupOptions: {
+        rolldownOptions: {
             external: ['enum-plus'],
         },
+        minify: true,
     },
 })

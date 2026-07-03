@@ -6,6 +6,8 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 import monkey, { cdn } from 'vite-plugin-monkey'
 
+import pkg from './package.json' with { type: 'json' }
+
 const logoSvg = readFileSync(resolve(__dirname, './assets/logo.svg'), 'utf-8')
 const logoDataUri = `data:image/svg+xml;base64,${Buffer.from(logoSvg).toString('base64')}`
 
@@ -18,13 +20,13 @@ export default defineConfig({
                 },
             },
         }),
-        tailwindcss({ important: '#app' }),
+        tailwindcss(),
         monkey({
             entry: 'src/main.ts',
             userscript: {
                 icon: logoDataUri,
-                namespace: 'nhentai-tampermonkey',
-                name: 'nhentai-tampermonkey',
+                namespace: 'nhentai',
+                name: pkg.name,
                 description: 'Enhanced mobile-friendly UI for nhentai.net',
                 match: ['https://nhentai.net/*'],
                 exclude: ['*://i*.nhentai.net/*'],
@@ -43,6 +45,6 @@ export default defineConfig({
         }),
     ],
     build: {
-        minify: true,
+        // minify: true,
     },
 })

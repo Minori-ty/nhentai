@@ -1,7 +1,13 @@
 packages:
-    - 'apps/*'
-    - 'packages/*'
+  - apps/*
+  - packages/*
+
 allowBuilds:
-    esbuild: true
-    sharp: true
-    spawn-sync: true
+  esbuild: true
+  sharp: true
+  spawn-sync: true
+
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
+  - spawn-sync

@@ -2,6 +2,8 @@ import tailwindcss from '@tailwindcss/vite'
 import type { Plugin } from 'vite'
 import { defineConfig } from 'wxt'
 
+import pkg from './package.json' with { type: 'json' }
+
 function asciiOnlyPlugin(): Plugin {
     return {
         name: 'ascii-only',
@@ -25,7 +27,7 @@ function asciiOnlyPlugin(): Plugin {
 export default defineConfig({
     modules: ['@wxt-dev/module-vue', '@wxt-dev/auto-icons'],
     manifest: {
-        name: 'nhentai-extension',
+        name: pkg.name,
         permissions: ['offscreen'],
         host_permissions: ['*://*.nhentai.net/*'],
     },

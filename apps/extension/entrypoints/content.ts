@@ -6,7 +6,7 @@ import { createApp } from 'vue'
 
 import { createDownloadManager } from '@/utils/downloadManager'
 
-import '../assets/tailwind.css'
+import '../tailwind.css'
 
 export default defineContentScript({
     matches: ['https://nhentai.net/*'],

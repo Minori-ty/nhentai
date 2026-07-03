@@ -1,4 +1,4 @@
-import './assets/css/tailwind.css'
+import './tailwind.css'
 
 // --- 组件 ---
 export { default as App } from './components/App.vue'
