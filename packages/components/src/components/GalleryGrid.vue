@@ -5,7 +5,7 @@ import { ref, watch, onUnmounted, inject, useTemplateRef } from 'vue'
 
 import { LangEnum } from '../enums'
 import { DownloadManagerKey } from '../types/download'
-import { GridColumnsKey } from '../types/layout'
+import { GridColumnsKey, OpenInNewTabKey } from '../types/layout'
 import ConfirmDialog from './ConfirmDialog.vue'
 import LoadingSpinner from './LoadingSpinner.vue'
 import PageLoader from './PageLoader.vue'
@@ -32,6 +32,7 @@ const props = defineProps<{
 
 const dm = inject(DownloadManagerKey, null)
 const isMobile = inject(GridColumnsKey, false)
+const openInNewTab = inject(OpenInNewTabKey, false)
 
 const downloadedIds = ref<Set<number>>(new Set())
 const downloadProgress = ref<Map<number, number>>(new Map())
@@ -136,7 +137,7 @@ const gridColsClass = isMobile ? 'grid-cols-2' : 'grid-cols-5'
                 :data-page="item._page"
                 :to="{ name: 'Detail', params: { id: item.id } }"
                 class="group block text-current"
-                target="_blank"
+                :target="openInNewTab ? '_blank' : undefined"
             >
                 <!-- 封面图 -->
                 <div

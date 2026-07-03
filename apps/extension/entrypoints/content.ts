@@ -1,5 +1,5 @@
 import { App } from '@nhentai/components'
-import { setUserAvatar, setUserName, DownloadManagerKey } from '@nhentai/components'
+import { setUserAvatar, setUserName, DownloadManagerKey, OpenInNewTabKey } from '@nhentai/components'
 import router from '@nhentai/components/router'
 import { preconnectImageCDNs } from '@nhentai/utils'
 import { createApp } from 'vue'
@@ -43,6 +43,7 @@ export default defineContentScript({
         // 挂载 Vue 应用
         const app = createApp(App)
         app.use(router)
+        app.provide(OpenInNewTabKey, true)
         app.provide(DownloadManagerKey, createDownloadManager())
         app.mount('#app')
     },

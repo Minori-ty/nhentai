@@ -33,4 +33,4 @@ export type { SortMode, TagType, MsgType, MsgTarget, TagRouteName } from './enum
 // --- 类型 ---
 export type { DownloadManager } from './types/download'
 export { DownloadManagerKey } from './types/download'
-export { GridColumnsKey } from './types/layout'
+export { GridColumnsKey, OpenInNewTabKey } from './types/layout'
