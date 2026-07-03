@@ -1,4 +1,4 @@
-import { throttle } from '@nhentai/utils'
+import { throttle } from 'lodash-es'
 import { onMounted, onUnmounted, type Ref } from 'vue'
 
 export function useInfiniteScroll(loadMore: () => void, page: Ref<number>) {

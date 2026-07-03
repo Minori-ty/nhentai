@@ -18,7 +18,7 @@ export default defineConfig({
             formats: ['es'],
         },
         rollupOptions: {
-            external: ['vue', 'vue-router', '@nhentai/api', '@nhentai/utils', 'date-fns', 'enum-plus'],
+            external: ['vue', 'vue-router', '@nhentai/api', '@nhentai/utils', 'date-fns', 'enum-plus', 'lodash-es'],
             output: {
                 globals: {
                     vue: 'Vue',
