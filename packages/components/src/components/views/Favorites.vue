@@ -91,8 +91,8 @@ onMounted(() => {
             <input
                 v-model="query"
                 type="text"
-                placeholder="Search favorites..."
-                class="flex-1 rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-white placeholder-gray-400 transition-all outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/50"
+                placeholder="搜索收藏..."
+                class="flex-1 rounded-lg border! border-gray-700! bg-gray-800! px-4 py-2 text-white! placeholder-gray-400 transition-all outline-none focus:border-indigo-400! focus:ring-2! focus:ring-indigo-500/50!"
                 @keyup.enter="doSearch"
             />
             <BaseBtn variant="primary" @click="doSearch">搜索</BaseBtn>

@@ -16,12 +16,12 @@ const emit = defineEmits<{
 const dialogRef = useTemplateRef('dialogRef')
 
 function onDialogClose() {
-    document.body.style.overflow = ''
+    document.body.classList.remove('dialog-open')
 }
 
 function show() {
     dialogRef.value?.showModal()
-    document.body.style.overflow = 'hidden'
+    document.body.classList.add('dialog-open')
 }
 
 function close() {

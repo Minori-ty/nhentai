@@ -1,2 +1,9 @@
-@import 'tailwindcss' important;
-@source '../../packages/components/src';
+@import 'tailwindcss';
+
+body.dialog-open {
+    overflow: clip;
+}
+
+html {
+    scrollbar-gutter: stable both-edges;
+}

@@ -1,6 +1,7 @@
 {
     "$schema": "./node_modules/oxlint/configuration_schema.json",
     "jsPlugins": ["oxlint-tailwindcss"],
+    "plugins": ["vue", "typescript", "oxc"],
     "rules": {
         // Correctness — catch real bugs
         "tailwindcss/no-conflicting-classes": "error",

@@ -5,7 +5,7 @@ import { ref, watch, onUnmounted, inject, useTemplateRef } from 'vue'
 
 import { LangEnum } from '../enums'
 import { DownloadManagerKey } from '../types/download'
-import { GridColumnsKey, OpenInNewTabKey } from '../types/layout'
+import { OpenInNewTabKey } from '../types/layout'
 import ConfirmDialog from './ConfirmDialog.vue'
 import LoadingSpinner from './LoadingSpinner.vue'
 import PageLoader from './PageLoader.vue'
@@ -31,7 +31,6 @@ const props = defineProps<{
 }>()
 
 const dm = inject(DownloadManagerKey, null)
-const isMobile = inject(GridColumnsKey, false)
 const openInNewTab = inject(OpenInNewTabKey, false)
 
 const downloadedIds = ref<Set<number>>(new Set())
@@ -120,8 +119,6 @@ async function onRemoveConfirm() {
 function getThumbnailUrl(thumbnail: string): string {
     return `https://t1.nhentai.net/${thumbnail}`
 }
-
-const gridColsClass = isMobile ? 'grid-cols-2' : 'grid-cols-5'
 </script>
 
 <template>
@@ -130,7 +127,7 @@ const gridColsClass = isMobile ? 'grid-cols-2' : 'grid-cols-5'
 
     <!-- 瀑布流 Grid -->
     <div v-if="compact || !loading" class="mx-auto w-fit rounded-xl bg-[#2A3744] px-4 py-6">
-        <div :class="['grid justify-center gap-6', gridColsClass]">
+        <div class="grid grid-cols-2 justify-center gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-9">
             <router-link
                 v-for="item in items"
                 :key="item.id"
@@ -140,12 +137,7 @@ const gridColsClass = isMobile ? 'grid-cols-2' : 'grid-cols-5'
                 :target="openInNewTab ? '_blank' : undefined"
             >
                 <!-- 封面图 -->
-                <div
-                    :class="[
-                        'relative mx-auto max-h-80 overflow-hidden rounded-lg bg-gray-800',
-                        isMobile ? 'w-full' : 'w-56.25',
-                    ]"
-                >
+                <div :class="['relative mx-auto max-h-80 overflow-hidden rounded-lg bg-gray-800', 'w-full md:w-56.25']">
                     <!-- 已下载：绿色勾（点击可重新下载） -->
                     <button
                         v-if="dm && downloadedIds.has(item.id)"
@@ -214,7 +206,7 @@ const gridColsClass = isMobile ? 'grid-cols-2' : 'grid-cols-5'
                 <p
                     :class="[
                         'mx-auto mt-2 line-clamp-2 flex items-center justify-center gap-1 text-center text-sm text-gray-300 transition-colors group-hover:text-white',
-                        isMobile ? 'w-full' : 'w-56.25',
+                        'w-full md:w-56.25',
                     ]"
                 >
                     <img

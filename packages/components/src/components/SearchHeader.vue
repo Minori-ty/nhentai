@@ -67,9 +67,9 @@ function doSearch() {
             <input
                 v-model="query"
                 type="text"
-                placeholder="Search galleries..."
+                placeholder="搜索本子..."
                 :class="[
-                    'flex-1 rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-white placeholder-gray-400 transition-all outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/50',
+                    'flex-1 rounded-lg border! border-gray-700! bg-gray-800! px-4 py-2 text-white! placeholder-gray-400 transition-all outline-none focus:border-indigo-400! focus:ring-2! focus:ring-indigo-500/50!',
                     isMobile ? 'w-38' : '',
                 ]"
                 @keyup.enter="doSearch"

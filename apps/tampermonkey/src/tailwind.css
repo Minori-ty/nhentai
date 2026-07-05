@@ -1,2 +1,5 @@
-@import 'tailwindcss' important;
-@source '../../../packages/components/src';
+@import 'tailwindcss';
+
+body.dialog-open {
+    overflow: hidden;
+}

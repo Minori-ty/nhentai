@@ -6,6 +6,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 
 import './tailwind.css'
+import '@nhentai/components/components.css'
 
 // 在清除之前获取头像 URL
 const avatarImg = document.querySelector<HTMLImageElement>(

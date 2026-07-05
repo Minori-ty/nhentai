@@ -9,7 +9,6 @@ import { useRoute, useRouter } from 'vue-router'
 
 import { LangEnum } from '../../enums'
 import { DownloadManagerKey } from '../../types/download'
-import { GridColumnsKey } from '../../types/layout'
 import BaseBtn from '../BaseBtn.vue'
 import PageLoader from '../PageLoader.vue'
 
@@ -19,8 +18,6 @@ const gallery = ref<IGallery | null>(null)
 const loading = ref(true)
 
 const dm = inject(DownloadManagerKey, null)
-const isMobile = inject(GridColumnsKey, false)
-const thumbGridClass = isMobile ? 'grid-cols-2' : 'grid-cols-5'
 
 const groupedTags = computed(() => {
     if (!gallery.value) return []
@@ -157,8 +154,8 @@ onMounted(async () => {
         <!-- ===== 上半部分：移动端上下布局 / 桌面端左右布局 ===== -->
         <div
             :class="[
-                'mx-auto mt-4 mb-6 flex max-w-[1110px] rounded-xl bg-[#2A3744]',
-                isMobile ? 'flex-col items-center gap-4 px-4 py-6' : 'gap-8 px-6 py-8',
+                'mx-auto mt-4 mb-6 flex max-w-277.5 rounded-xl bg-[#2A3744]',
+                'flex-col items-center px-4 py-6 md:flex-row md:gap-8 md:px-6 md:py-8',
             ]"
         >
             <!-- 左边（移动端：上方）封面 -->
@@ -166,7 +163,7 @@ onMounted(async () => {
                 <img
                     :src="coverUrl"
                     :alt="gallery.title.japanese || gallery.title.english"
-                    :class="['rounded-lg shadow-lg', isMobile ? 'w-full' : 'w-86']"
+                    :class="['rounded-lg shadow-lg', 'w-full md:w-86']"
                     @error="handleImageError"
                 />
             </div>
@@ -264,19 +261,16 @@ onMounted(async () => {
 
         <!-- ===== 下半部分：所有漫画缩略图 ===== -->
         <div class="mx-auto w-fit rounded-xl bg-[#2A3744] px-6 py-6">
-            <div :class="['grid justify-center gap-6', thumbGridClass]">
+            <div
+                class="grid grid-cols-2 justify-center gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-9"
+            >
                 <div
                     v-for="page in gallery.pages"
                     :key="page.number"
                     class="group cursor-pointer"
                     @click="goSingle(page.number)"
                 >
-                    <div
-                        :class="[
-                            'mx-auto h-80 overflow-hidden rounded-lg bg-gray-800',
-                            isMobile ? 'w-full' : 'w-56.25',
-                        ]"
-                    >
+                    <div :class="['mx-auto h-80 overflow-hidden rounded-lg bg-gray-800', 'w-full md:w-56.25']">
                         <img
                             :src="`https://t1.nhentai.net/${page.thumbnail}`"
                             :alt="`Page ${page.number}`"
@@ -285,7 +279,7 @@ onMounted(async () => {
                             @error="handleImageError"
                         />
                     </div>
-                    <p :class="['mx-auto mt-2 text-center text-sm text-gray-400', isMobile ? 'w-full' : 'w-56.25']">
+                    <p :class="['mx-auto mt-2 text-center text-sm text-gray-400', 'w-full md:w-56.25']">
                         #{{ page.number }}
                     </p>
                 </div>
