@@ -26,10 +26,11 @@ export default defineConfig({
             userscript: {
                 icon: logoDataUri,
                 namespace: 'nhentai',
-                name: pkg.name,
+                name: 'nhentai Enhanced',
                 description: 'Enhanced mobile-friendly UI for nhentai.net',
                 match: ['https://nhentai.net/*'],
                 exclude: ['*://i*.nhentai.net/*'],
+                version: pkg.version,
             },
             build: {
                 externalGlobals: {
