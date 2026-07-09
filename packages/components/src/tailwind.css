@@ -4,7 +4,3 @@ html,
 body {
     @apply bg-[#202a34];
 }
-
-body.dialog-open {
-    overflow: hidden;
-}

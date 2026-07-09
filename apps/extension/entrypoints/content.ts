@@ -31,22 +31,6 @@ export default defineContentScript({
         // CDN 预连接
         preconnectImageCDNs()
 
-        // 把 nhentai.net 的 CSS 全部包进 @layer nhentai（最低优先级）
-        // 这样 Tailwind v4 的 @layer utilities 就能生效
-        document.querySelectorAll('style').forEach((el) => {
-            if (!el.textContent?.includes('@layer')) {
-                el.textContent = `@layer nhentai { ${el.textContent} }`
-            }
-        })
-        document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"]').forEach((el) => {
-            const href = el.href
-            if (href) {
-                const style = document.createElement('style')
-                style.textContent = `@layer nhentai { @import url("${href}"); }`
-                el.replaceWith(style)
-            }
-        })
-
         // 清除 body 内容
         document.body.innerHTML = ''
         document.body.style.backgroundColor = '#202a34'
