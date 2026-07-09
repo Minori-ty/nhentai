@@ -30,3 +30,6 @@ dist
 .vite-inspect
 .codegraph
 .turbo
+
+.codebuddy
+.workbuddy

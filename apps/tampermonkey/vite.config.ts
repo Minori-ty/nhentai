@@ -12,6 +12,11 @@ const logoSvg = readFileSync(resolve(__dirname, './assets/logo.svg'), 'utf-8')
 const logoDataUri = `data:image/svg+xml;base64,${Buffer.from(logoSvg).toString('base64')}`
 
 export default defineConfig({
+    resolve: {
+        alias: {
+            '@': resolve(__dirname, 'src'),
+        },
+    },
     plugins: [
         vue({
             template: {

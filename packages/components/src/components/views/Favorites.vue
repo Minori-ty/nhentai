@@ -4,7 +4,8 @@ import type { IResult } from '@nhentai/api'
 import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
-import { useInfiniteScroll } from '../../composables/useInfiniteScroll'
+import { useInfiniteScroll } from '@/composables/useInfiniteScroll'
+
 import BaseBtn from '../BaseBtn.vue'
 import GalleryGrid from '../GalleryGrid.vue'
 import PageIndicator from '../PageIndicator.vue'

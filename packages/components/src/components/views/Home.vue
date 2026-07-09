@@ -3,7 +3,8 @@ import { getGallery, getPopular } from '@nhentai/api'
 import type { IResult } from '@nhentai/api'
 import { ref, onMounted, computed } from 'vue'
 
-import { useInfiniteScroll } from '../../composables/useInfiniteScroll'
+import { useInfiniteScroll } from '@/composables/useInfiniteScroll'
+
 import GalleryGrid from '../GalleryGrid.vue'
 import PageIndicator from '../PageIndicator.vue'
 

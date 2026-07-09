@@ -4,7 +4,8 @@ import type { IGallery } from '@nhentai/api'
 import { ref, onMounted, inject, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 
-import { GridColumnsKey } from '../../types/layout'
+import { GridColumnsKey } from '@/types/layout'
+
 import PageLoader from '../PageLoader.vue'
 
 const route = useRoute<'Single'>()

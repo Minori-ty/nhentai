@@ -2,7 +2,8 @@
 import { TagTypeEnum, type TagType } from '@nhentai/api'
 import { computed } from 'vue'
 
-import { useTagPage } from '../../composables/useTagPage'
+import { useTagPage } from '@/composables/useTagPage'
+
 import GalleryGrid from '../GalleryGrid.vue'
 import PageIndicator from '../PageIndicator.vue'
 import SortBar from '../SortBar.vue'

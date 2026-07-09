@@ -5,8 +5,9 @@ import { type SortMode } from '@nhentai/api'
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
-import { useInfiniteScroll } from '../../composables/useInfiniteScroll'
-import { searchBus, triggerSearch } from '../../composables/useSearchBus'
+import { useInfiniteScroll } from '@/composables/useInfiniteScroll'
+import { searchBus, triggerSearch } from '@/composables/useSearchBus'
+
 import GalleryGrid from '../GalleryGrid.vue'
 import SortBar from '../SortBar.vue'
 

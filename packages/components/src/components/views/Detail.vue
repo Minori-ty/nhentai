@@ -7,8 +7,9 @@ import { intervalToDuration, format } from 'date-fns'
 import { ref, onMounted, onUnmounted, inject, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import { LangEnum } from '../../enums'
-import { DownloadManagerKey } from '../../types/download'
+import { LangEnum } from '@/enums'
+import { DownloadManagerKey } from '@/types/download'
+
 import BaseBtn from '../BaseBtn.vue'
 import PageLoader from '../PageLoader.vue'
 
