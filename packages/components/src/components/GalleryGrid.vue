@@ -127,7 +127,9 @@ function getThumbnailUrl(thumbnail: string): string {
 
     <!-- 瀑布流 Grid -->
     <div v-if="compact || !loading" class="mx-auto w-fit rounded-xl bg-[#2A3744] px-4 py-6">
-        <div class="grid grid-cols-2 justify-center gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-9">
+        <div
+            class="3xl:grid-cols-9 grid grid-cols-2 justify-center gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7"
+        >
             <router-link
                 v-for="item in items"
                 :key="item.id"

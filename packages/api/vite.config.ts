@@ -9,7 +9,7 @@ export default defineConfig({
             '@': resolve(__dirname, 'src'),
         },
     },
-    plugins: [dts({ insertTypesEntry: true })],
+    plugins: [dts({ insertTypesEntry: true, copyDtsFiles: true, rollupTypes: true })],
     build: {
         lib: {
             entry: resolve(__dirname, 'src/index.ts'),

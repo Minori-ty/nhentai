@@ -15,9 +15,9 @@ export {
 } from './api/index'
 
 // --- 类型 ---
-export type { ISearchResponse, IResult } from './api/types'
-export type { IGallery, IFavoriteResponse, Title, Tag, Page, Cover, Thumbnail } from './api/info'
-export type { ITags } from './api/tags'
+export type { ISearchResponse, IResult } from './api/types.d'
+export type { IGallery, IFavoriteResponse, Title, Tag, Page, Cover, Thumbnail } from './api/info.d'
+export type { ITags } from './api/tags.d'
 
 // --- 枚举 ---
 export { SortEnum, TagTypeEnum, MsgTypeEnum, MsgTargetEnum } from './enums'

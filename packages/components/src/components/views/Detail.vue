@@ -263,7 +263,7 @@ onMounted(async () => {
         <!-- ===== 下半部分：所有漫画缩略图 ===== -->
         <div class="mx-auto w-fit rounded-xl bg-[#2A3744] px-6 py-6">
             <div
-                class="grid grid-cols-2 justify-center gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-9"
+                class="3xl:grid-cols-9 grid grid-cols-2 justify-center gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7"
             >
                 <div
                     v-for="page in gallery.pages"
