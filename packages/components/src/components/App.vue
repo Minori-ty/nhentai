@@ -37,5 +37,9 @@ onMounted(() => {
 
 <template>
     <SearchHeader @search="onSearch" />
-    <router-view />
+    <router-view v-slot="{ Component }">
+        <KeepAlive>
+            <component :is="Component" />
+        </KeepAlive>
+    </router-view>
 </template>

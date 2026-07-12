@@ -9,6 +9,7 @@ import { useInfiniteScroll } from '@/composables/useInfiniteScroll'
 import { searchBus, triggerSearch } from '@/composables/useSearchBus'
 
 import GalleryGrid from '../GalleryGrid.vue'
+import PageIndicator from '../PageIndicator.vue'
 import SortBar from '../SortBar.vue'
 
 const router = useRouter()
@@ -90,4 +91,6 @@ onMounted(() => {
     <SortBar :total="total" :sort="sort" @update:sort="setSort" />
 
     <GalleryGrid :items="results" :loading="loading" :loading-more="loadingMore" :is-end="isEnd" />
+
+    <PageIndicator :num-pages="numPages" />
 </template>
