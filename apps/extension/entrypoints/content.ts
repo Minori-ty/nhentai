@@ -15,32 +15,43 @@ export default defineContentScript({
     runAt: 'document_start',
     excludeMatches: Array.from({ length: 4 }, (_, i) => `https://i${i + 1}.nhentai.net/*`),
     async main() {
-        // CDN 预连接
-        // preconnectImageCDNs()
-        console.log('Content script loaded on nhentai.net', document.body)
-        // 清除 body 内容
-        document.body.innerHTML = ''
-        document.body.style.backgroundColor = '#202a34'
-
-        // 创建挂载点
+        getMe().then((me) => {
+            setUserAvatar(`https://i2.nhentai.net/${me.avatar_url}`)
+            setUserName(me.username)
+        })
+        // // 创建挂载点
         const root = document.createElement('div')
         root.className = 'bg-[#202a34] min-h-screen'
         root.id = 'app'
-        document.body.appendChild(root)
+        let removed = false
+        const bodyObs = new MutationObserver((list) => {
+            list.forEach((m) => {
+                m.addedNodes.forEach((node) => {
+                    if (node instanceof HTMLHeadElement) {
+                        // CDN 预连接
+                        preconnectImageCDNs()
+                    }
 
-        // 挂载 Vue 应用
-        const app = createApp(App)
-        app.use(router)
-        app.provide(OpenInNewTabKey, true)
-        app.provide(DownloadManagerKey, createDownloadManager())
-        app.mount('#app')
-        // 通过 API 获取当前用户信息
-        try {
-            const me = await getMe()
-            setUserAvatar(`https://i2.nhentai.net/${me.avatar_url}`)
-            setUserName(me.username)
-        } catch {
-            // 未登录或接口失败，不设置头像/用户名
-        }
+                    if (node instanceof HTMLBodyElement && !removed) {
+                        console.log('Content script loaded on nhentai.net', node)
+                        // 清除 body 内容
+                        node.remove()
+                        removed = true
+                        const body = document.createElement('body')
+                        document.documentElement.appendChild(body)
+                        document.body.style.backgroundColor = '#202a34'
+                        document.body.appendChild(root)
+
+                        // // 挂载 Vue 应用
+                        const app = createApp(App)
+                        app.use(router)
+                        app.provide(OpenInNewTabKey, true)
+                        app.provide(DownloadManagerKey, createDownloadManager())
+                        app.mount('#app')
+                    }
+                })
+            })
+        })
+        bodyObs.observe(document, { childList: true, subtree: true })
     },
 })
