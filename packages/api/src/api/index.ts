@@ -3,7 +3,19 @@ import type { IGallery, IFavoriteResponse } from './info.d'
 import { request } from './request'
 import type { ITags } from './tags.d'
 import type { ISearchResponse, IResult } from './types.d'
+import type { IUserMe } from './user.d'
 
+/**
+ * 搜索画廊。
+ *
+ * 支持关键词、精确短语、排除、标签过滤、数值过滤和日期过滤。
+ * 公开接口，无需登录。传入 auth token 可提高速率限制。
+ *
+ * @param query - 搜索关键字
+ * @param page - 页码，从 1 开始
+ * @param sort - 排序方式，可选 date / popular / popular-today / popular-week / popular-month
+ * @see https://nhentai.net/api/v2/docs#/search/search_galleries_api_v2_search_get
+ */
 export function searchGallery({
     query = '',
     page = 1,
@@ -19,6 +31,15 @@ export function searchGallery({
     })
 }
 
+/**
+ * 获取最新上传的画廊列表，按时间倒序。
+ *
+ * 相当于浏览 nhentai.net 首页。
+ * 公开接口。
+ *
+ * @param page - 页码
+ * @see https://nhentai.net/api/v2/docs#/galleries/get_all_galleries_api_v2_galleries_get
+ */
 export function getGallery(page: number): Promise<ISearchResponse> {
     return request('/galleries', {
         params: { page },
@@ -26,6 +47,15 @@ export function getGallery(page: number): Promise<ISearchResponse> {
     })
 }
 
+/**
+ * 获取单个画廊的详细信息，包括所有页面、标签、标题。
+ *
+ * 传入 include=favorite 可附带当前用户的是否收藏标记。
+ * 需要登录。
+ *
+ * @param id - 画廊 ID
+ * @see https://nhentai.net/api/v2/docs#/galleries/get_gallery_api_v2_galleries__gallery_id__get
+ */
 export function getGalleryInfo(id: number): Promise<IGallery> {
     return request(`/galleries/${id}`, {
         params: { include: 'favorite' },
@@ -33,24 +63,65 @@ export function getGalleryInfo(id: number): Promise<IGallery> {
     })
 }
 
+/**
+ * 获取当前用户的收藏列表，按最新收藏时间倒序。
+ *
+ * 支持关键字筛选（在已收藏范围内搜索）。
+ * 需要登录。
+ *
+ * @param page - 页码
+ * @param q - 搜索关键字（在收藏中搜索）
+ * @see https://nhentai.net/api/v2/docs#/favorites/get_favorites_api_v2_favorites_get
+ */
 export function getFavorites({ page = 1, q = '' }: { page?: number; q?: string }): Promise<ISearchResponse> {
     return request('/favorites', {
         params: { page, q },
     })
 }
 
+/**
+ * 切换画廊的收藏状态。
+ *
+ * favorited=true 时 POST 添加到收藏，favorited=false 时 DELETE 移除。
+ * 返回更新后的收藏数和状态。
+ * 需要登录。
+ *
+ * @param id - 画廊 ID
+ * @param favorited - true 收藏 / false 取消收藏
+ * @see https://nhentai.net/api/v2/docs#/galleries/favorite_gallery_api_v2_galleries__gallery_id__favorite_post
+ */
 export function favoriteGallery(id: number, favorited: boolean): Promise<IFavoriteResponse> {
     return request(`/galleries/${id}/favorite`, {
         method: favorited ? 'POST' : 'DELETE',
     })
 }
 
+/**
+ * 根据 slug 获取某个标签的详细信息。
+ *
+ * 适用所有标签类型：tag、group、artist、character、language、category。
+ * 公开接口。
+ *
+ * @param type - 标签类型
+ * @param name - 标签 slug 名称
+ * @see https://nhentai.net/api/v2/docs#/tags/get_tag_info_api_v2_tags__tag_type___slug__get
+ */
 export function getTagInfo(type: TagType, name: string): Promise<ITags> {
     return request(`/tags/${type}/${name}`, {
         auth: false,
     })
 }
 
+/**
+ * 根据标签 id 获取该标签下的画廊列表。
+ *
+ * 公开接口。
+ *
+ * @param tag_id - 标签 ID
+ * @param page - 页码
+ * @param sort - 排序方式
+ * @see https://nhentai.net/api/v2/docs#/galleries/get_galleries_tagged_api_v2_galleries_tagged_get
+ */
 export function getTags({
     page = 1,
     sort = SortEnum.Date,
@@ -66,6 +137,16 @@ export function getTags({
     })
 }
 
+/**
+ * 请求服务端打包画廊为 ZIP 文件。
+ *
+ * 返回短时有效的签名下载 URL 和过期时间戳。该 URL 只能用一次，
+ * 客户端拿到后请尽快发起下载。
+ * 需要登录。
+ *
+ * @param id - 画廊 ID
+ * @see https://nhentai.net/api/v2/docs#/galleries/download_gallery_api_v2_galleries__gallery_id__download_post
+ */
 export function downloadGallery(id: number): Promise<{ url: string; expires_at: number }> {
     return request(`/galleries/${id}/download`, {
         method: 'POST',
@@ -73,8 +154,29 @@ export function downloadGallery(id: number): Promise<{ url: string; expires_at: 
     })
 }
 
+/**
+ * 获取当前流行（热门）的 5 个画廊。
+ *
+ * 公开接口。始终返回固定 5 元组。
+ *
+ * @see https://nhentai.net/api/v2/docs#/galleries/get_popular_galleries_api_v2_galleries_popular_get
+ */
 export function getPopular(): Promise<[IResult, IResult, IResult, IResult, IResult]> {
     return request('/galleries/popular', {
         auth: false,
     })
+}
+
+/**
+ * 获取当前登录用户的个人资料。
+ *
+ * 返回 id、username、slug、avatar_url、theme、is_staff、is_superuser、
+ * about、favorite_tags。email 字段仅在 User Token 认证时返回，
+ * API Key 认证时返回 null。
+ * 需要登录。
+ *
+ * @see https://nhentai.net/api/v2/docs#/user/get_me_api_v2_user_get
+ */
+export function getMe(): Promise<IUserMe> {
+    return request('/user', { auth: true })
 }

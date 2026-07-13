@@ -1,3 +1,4 @@
+import { getMe } from '@nhentai/api'
 import { setUserAvatar, setUserName, GridColumnsKey } from '@nhentai/components'
 import router from '@nhentai/components/router'
 import { preconnectImageCDNs } from '@nhentai/utils'
@@ -8,18 +9,16 @@ import App from './App.vue'
 import './tailwind.css'
 import '@nhentai/components/components.css'
 
-// 在清除之前获取头像 URL
-const avatarImg = document.querySelector<HTMLImageElement>(
-    '#app > nav > div > ul.menu.right > li:nth-child(2) > a > img',
-)
-if (avatarImg) {
-    setUserAvatar(avatarImg.src)
-}
-
-const nameEl = document.querySelector<HTMLElement>('#app > nav > div > ul.menu.right > li:nth-child(2) > a > span')
-if (nameEl) {
-    setUserName(nameEl.innerText.trim())
-}
+// 通过 API 获取当前用户信息
+;(async () => {
+    try {
+        const me = await getMe()
+        setUserAvatar(`https://i2.nhentai.net/${me.avatar_url}`)
+        setUserName(me.username)
+    } catch {
+        // 未登录或接口失败，不设置头像/用户名
+    }
+})()
 
 // CDN 预连接
 preconnectImageCDNs()

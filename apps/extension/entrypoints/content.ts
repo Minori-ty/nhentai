@@ -1,3 +1,4 @@
+import { getMe } from '@nhentai/api'
 import { App } from '@nhentai/components'
 import { setUserAvatar, setUserName, DownloadManagerKey, OpenInNewTabKey } from '@nhentai/components'
 import router from '@nhentai/components/router'
@@ -11,26 +12,12 @@ import '@nhentai/components/components.css'
 
 export default defineContentScript({
     matches: ['https://nhentai.net/*'],
+    runAt: 'document_start',
     excludeMatches: Array.from({ length: 4 }, (_, i) => `https://i${i + 1}.nhentai.net/*`),
-    main() {
-        // 在清除之前获取头像 URL
-        const avatarImg = document.querySelector<HTMLImageElement>(
-            '#app > nav > div > ul.menu.right > li:nth-child(2) > a > img',
-        )
-        if (avatarImg) {
-            setUserAvatar(avatarImg.src)
-        }
-
-        const nameEl = document.querySelector<HTMLElement>(
-            '#app > nav > div > ul.menu.right > li:nth-child(2) > a > span',
-        )
-        if (nameEl) {
-            setUserName(nameEl.innerText.trim())
-        }
-
+    async main() {
         // CDN 预连接
-        preconnectImageCDNs()
-
+        // preconnectImageCDNs()
+        console.log('Content script loaded on nhentai.net', document.body)
         // 清除 body 内容
         document.body.innerHTML = ''
         document.body.style.backgroundColor = '#202a34'
@@ -47,5 +34,13 @@ export default defineContentScript({
         app.provide(OpenInNewTabKey, true)
         app.provide(DownloadManagerKey, createDownloadManager())
         app.mount('#app')
+        // 通过 API 获取当前用户信息
+        try {
+            const me = await getMe()
+            setUserAvatar(`https://i2.nhentai.net/${me.avatar_url}`)
+            setUserName(me.username)
+        } catch {
+            // 未登录或接口失败，不设置头像/用户名
+        }
     },
 })
