@@ -1,15 +1,18 @@
 <script lang="ts" setup>
 import { throttle } from 'lodash-es'
-import { ref, onMounted, onUnmounted, inject } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
-import { GridColumnsKey } from '../types/layout'
+const props = withDefaults(
+    defineProps<{
+        numPages: number
+        initialPage?: number
+        isMobile?: boolean
+    }>(),
+    {
+        isMobile: false,
+    },
+)
 
-const props = defineProps<{
-    numPages: number
-    initialPage?: number
-}>()
-
-const isMobile = inject(GridColumnsKey, false)
 const currentPage = ref(props.initialPage || 1)
 
 function updateCurrentPage() {

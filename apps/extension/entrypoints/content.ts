@@ -1,11 +1,9 @@
 import { getMe } from '@nhentai/api'
-import { App } from '@nhentai/components'
-import { setUserAvatar, setUserName, DownloadManagerKey, OpenInNewTabKey } from '@nhentai/components'
-import router from '@nhentai/components/router'
 import { preconnectImageCDNs } from '@nhentai/utils'
 import { createApp } from 'vue'
 
-import { createDownloadManager } from '@/utils/downloadManager'
+import App from '../App.vue'
+import router from '../router'
 
 import '../tailwind.css'
 import '@nhentai/components/components.css'
@@ -16,10 +14,14 @@ export default defineContentScript({
     excludeMatches: Array.from({ length: 4 }, (_, i) => `https://i${i + 1}.nhentai.net/*`),
     async main() {
         getMe().then((me) => {
-            setUserAvatar(`https://i2.nhentai.net/${me.avatar_url}`)
-            setUserName(me.username)
+            const avatar = `https://i2.nhentai.net/${me.avatar_url}`
+            const link = document.createElement('link')
+            link.rel = 'preconnect'
+            link.href = 'https://i2.nhentai.net'
+            link.crossOrigin = 'anonymous'
+            document.head.appendChild(link)
         })
-        // // 创建挂载点
+        // 创建挂载点
         const root = document.createElement('div')
         root.className = 'bg-[#202a34] min-h-screen'
         root.id = 'app'
@@ -42,11 +44,9 @@ export default defineContentScript({
                         document.body.style.backgroundColor = '#202a34'
                         document.body.appendChild(root)
 
-                        // // 挂载 Vue 应用
+                        // 挂载 Vue 应用
                         const app = createApp(App)
                         app.use(router)
-                        app.provide(OpenInNewTabKey, true)
-                        app.provide(DownloadManagerKey, createDownloadManager())
                         app.mount('#app')
                     }
                 })

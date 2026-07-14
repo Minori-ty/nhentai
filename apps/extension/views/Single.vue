@@ -1,18 +1,14 @@
 <script lang="ts" setup>
 import { getGalleryInfo } from '@nhentai/api'
 import type { IGallery } from '@nhentai/api'
-import { ref, onMounted, inject, nextTick } from 'vue'
+import { PageLoader } from '@nhentai/components'
+import { ref, onMounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
-
-import { GridColumnsKey } from '@/types/layout'
-
-import PageLoader from '../PageLoader.vue'
 
 const route = useRoute<'Single'>()
 const gallery = ref<IGallery | null>(null)
 const loading = ref(true)
 const loadedCount = ref(0)
-const isMobile = inject(GridColumnsKey, false)
 const listRef = ref<HTMLElement | null>(null)
 
 function resolveStartPage(): number {
@@ -25,12 +21,6 @@ function getImageUrl(page: { number: number; path: string }, _mediaId: string): 
 }
 
 function getImageStyle(page: { width: number; height: number }) {
-    if (isMobile) {
-        const ratio = page.width / page.height
-        const w = window.innerWidth
-        const h = Math.round(w / ratio)
-        return { width: `${w}px`, height: `${h}px` }
-    }
     const ratio = page.width / page.height
     const h = Math.round(window.innerHeight * 0.9)
     const w = Math.round(h * ratio)
@@ -100,10 +90,7 @@ onMounted(async () => {
         <!-- 图片加载指示器 -->
         <div
             v-if="loadedCount !== gallery.num_pages"
-            :class="[
-                'fixed -translate-y-1/2 rounded-lg bg-black/70 px-3 py-2 font-mono text-base text-white',
-                isMobile ? 'top-24 right-0' : 'top-32 right-4',
-            ]"
+            class="fixed top-32 right-4 -translate-y-1/2 rounded-lg bg-black/70 px-3 py-2 font-mono text-base text-white"
         >
             {{ loadedCount }} / {{ gallery.num_pages }}
         </div>

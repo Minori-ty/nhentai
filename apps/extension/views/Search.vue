@@ -1,21 +1,19 @@
 <script lang="ts" setup>
 import { searchGallery } from '@nhentai/api'
-import type { IResult } from '@nhentai/api'
-import { type SortMode } from '@nhentai/api'
+import type { IResult, SortMode } from '@nhentai/api'
+import { GalleryGrid, PageIndicator, SortBar } from '@nhentai/components'
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
-import { useInfiniteScroll } from '@/composables/useInfiniteScroll'
-import { searchBus, triggerSearch } from '@/composables/useSearchBus'
+import { useInfiniteScroll } from '../composables/useInfiniteScroll'
+import { searchBus, triggerSearch } from '../composables/useSearchBus'
 
-import GalleryGrid from '../GalleryGrid.vue'
-import PageIndicator from '../PageIndicator.vue'
-import SortBar from '../SortBar.vue'
+type Item = IResult & { _page: number }
 
 const router = useRouter()
 const route = useRoute()
 
-const results = ref<(IResult & { _page: number })[]>([])
+const results = ref<Item[]>([])
 const page = ref(1)
 const numPages = ref(1)
 const query = ref(String(route.query.q || ''))

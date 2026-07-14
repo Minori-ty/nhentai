@@ -1,20 +1,18 @@
 <script lang="ts" setup>
 import { getFavorites } from '@nhentai/api'
 import type { IResult } from '@nhentai/api'
+import { BaseBtn, GalleryGrid, PageIndicator } from '@nhentai/components'
 import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
-import { useInfiniteScroll } from '@/composables/useInfiniteScroll'
+import { useInfiniteScroll } from '../composables/useInfiniteScroll'
 
-import BaseBtn from '../BaseBtn.vue'
-import GalleryGrid from '../GalleryGrid.vue'
-import PageIndicator from '../PageIndicator.vue'
+type Item = IResult & { _page: number }
 
 const router = useRouter()
 const route = useRoute()
 
 function resolveInitialPage(): number {
-    // 优先取 vue-router hash 后面的 ?page=, fallback 到 location.search
     const page =
         parseInt(String(route.query.page || '')) ||
         parseInt(new URLSearchParams(location.search).get('page') || '') ||
@@ -33,7 +31,7 @@ function resolveInitialPage(): number {
     return page
 }
 const initialPage = resolveInitialPage()
-const results = ref<(IResult & { _page: number })[]>([])
+const results = ref<Item[]>([])
 const page = ref(initialPage)
 const numPages = ref(1)
 const loading = ref(false)
@@ -117,5 +115,5 @@ onMounted(() => {
     />
 
     <!-- 页码指示器 -->
-    <PageIndicator :num-pages="numPages" :initial-page="initialPage" />
+    <PageIndicator :num-pages="numPages" :initial-page="initialPage" :is-mobile="true" />
 </template>

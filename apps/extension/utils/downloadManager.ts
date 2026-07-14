@@ -1,8 +1,15 @@
 import { MsgTypeEnum } from '@nhentai/api'
-import type { DownloadManager } from '@nhentai/components'
 
 import MediaService from '../db'
 import type { ContentMessage } from '../types/messages.d'
+
+export interface DownloadManager {
+    isDownloaded(id: number): Promise<boolean>
+    startDownload(id: number): void
+    addDownload(id: number): Promise<void>
+    removeDownload(id: number): Promise<void>
+    onProgress(cb: (id: number, percent: number, done: boolean) => void): () => void
+}
 
 export function createDownloadManager(): DownloadManager {
     const listeners = new Set<(id: number, percent: number, done: boolean) => void>()

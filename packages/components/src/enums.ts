@@ -1,8 +1,3 @@
-// 从 @nhentai/api 重导出数据枚举（无 SVG 依赖）
-export { SortEnum, TagTypeEnum, MsgTypeEnum, MsgTargetEnum } from '@nhentai/api'
-export type { SortMode, TagType, MsgType, MsgTarget, TagRouteName } from '@nhentai/api'
-
-// LangEnum 依赖 SVG 资产，本地定义
 import { Enum } from 'enum-plus'
 
 import chineseSvg from './assets/chinese.svg'

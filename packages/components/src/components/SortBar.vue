@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { SortEnum, type SortMode } from '../enums'
+import { SortEnum, type SortMode } from '@nhentai/api'
 
 defineProps<{
     sort: SortMode

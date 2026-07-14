@@ -1,12 +1,9 @@
 <script lang="ts" setup>
 import { TagTypeEnum, type TagType } from '@nhentai/api'
+import { GalleryGrid, PageIndicator, SortBar } from '@nhentai/components'
 import { computed } from 'vue'
 
-import { useTagPage } from '@/composables/useTagPage'
-
-import GalleryGrid from '../GalleryGrid.vue'
-import PageIndicator from '../PageIndicator.vue'
-import SortBar from '../SortBar.vue'
+import { useTagPage } from '../composables/useTagPage'
 
 const props = defineProps<{
     tagType: TagType
@@ -27,5 +24,5 @@ const title = computed(() => {
 
     <GalleryGrid :items="results" :loading="loading" :loading-more="loadingMore" :is-end="isEnd" />
 
-    <PageIndicator :num-pages="numPages" :initial-page="1" />
+    <PageIndicator :num-pages="numPages" :initial-page="1" :is-mobile="true" />
 </template>

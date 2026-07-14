@@ -1,11 +1,11 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
-import Detail from './components/views/Detail.vue'
-import Favorites from './components/views/Favorites.vue'
-import Home from './components/views/Home.vue'
-import Search from './components/views/Search.vue'
-import Single from './components/views/Single.vue'
-import TagPage from './components/views/TagPage.vue'
+import Detail from './views/Detail.vue'
+import Favorites from './views/Favorites.vue'
+import Home from './views/Home.vue'
+import Search from './views/Search.vue'
+import Single from './views/Single.vue'
+import TagPage from './views/TagPage.vue'
 
 const router = createRouter({
     history: createWebHashHistory(),

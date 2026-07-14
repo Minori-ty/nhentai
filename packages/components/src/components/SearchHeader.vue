@@ -1,20 +1,30 @@
 <script lang="ts" setup>
-import { ref, watch, inject, onMounted, onUnmounted, useTemplateRef } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, onUnmounted, useTemplateRef } from 'vue'
 
 import logoSvg from '../assets/logo.svg'
-import { searchBus } from '../composables/useSearchBus'
-import { userAvatar, userName } from '../composables/useUserAvatar'
-import { GridColumnsKey } from '../types/layout'
 import BaseBtn from './BaseBtn.vue'
+
+const props = withDefaults(
+    defineProps<{
+        query?: string
+        userName?: string
+        userAvatar?: string
+        isMobile?: boolean
+    }>(),
+    {
+        query: '',
+        userName: '',
+        userAvatar: '',
+        isMobile: false,
+    },
+)
 
 const emit = defineEmits<{
     search: [query: string]
+    favorites: []
 }>()
 
-const router = useRouter()
-const query = ref('')
-const isMobile = inject(GridColumnsKey, false)
+const inputQuery = ref(props.query)
 
 // 移动端下拉菜单
 const menuOpen = ref(false)
@@ -34,9 +44,9 @@ function closeMenu(e: MouseEvent) {
 }
 
 function goFavorites() {
-    query.value = ''
+    inputQuery.value = ''
     menuOpen.value = false
-    router.push({ name: 'Favorites' })
+    emit('favorites')
 }
 
 onMounted(() => {
@@ -47,14 +57,9 @@ onUnmounted(() => {
     document.removeEventListener('click', closeMenu)
 })
 
-watch(searchBus, ({ query: q, ts }) => {
-    if (ts === 0) return
-    query.value = q
-})
-
 function doSearch() {
-    if (!query.value.trim()) return
-    emit('search', query.value.trim())
+    if (!inputQuery.value.trim()) return
+    emit('search', inputQuery.value.trim())
 }
 </script>
 
@@ -65,7 +70,7 @@ function doSearch() {
                 <img :src="logoSvg" alt="nHentai" class="h-8 cursor-pointer transition-opacity hover:opacity-80" />
             </a>
             <input
-                v-model="query"
+                v-model="inputQuery"
                 type="text"
                 placeholder="搜索本子..."
                 :class="[

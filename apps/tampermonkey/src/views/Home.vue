@@ -1,21 +1,21 @@
 <script lang="ts" setup>
 import { getGallery, getPopular } from '@nhentai/api'
 import type { IResult } from '@nhentai/api'
+import { GalleryGrid, PageIndicator } from '@nhentai/components'
 import { ref, onMounted, computed } from 'vue'
 
-import { useInfiniteScroll } from '@/composables/useInfiniteScroll'
+import { useInfiniteScroll } from '../composables/useInfiniteScroll'
 
-import GalleryGrid from '../GalleryGrid.vue'
-import PageIndicator from '../PageIndicator.vue'
+type Item = IResult & { _page: number }
 
-const results = ref<(IResult & { _page: number })[]>([])
+const results = ref<Item[]>([])
 const page = ref(1)
 const numPages = ref(1)
 const loading = ref(false)
 const loadingMore = ref(false)
 
 // Popular Now
-const popularItems = ref<(IResult & { _page: number })[]>([])
+const popularItems = ref<Item[]>([])
 
 async function loadPopular() {
     try {
@@ -77,5 +77,5 @@ onMounted(() => {
         <GalleryGrid :items="results" :loading="loading" :loading-more="loadingMore" :is-end="isEnd" />
     </div>
 
-    <PageIndicator :num-pages="numPages" :initial-page="1" />
+    <PageIndicator :num-pages="numPages" :initial-page="1" :is-mobile="true" />
 </template>

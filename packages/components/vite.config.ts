@@ -16,7 +16,6 @@ export default defineConfig({
         lib: {
             entry: {
                 index: resolve(__dirname, 'src/index.ts'),
-                router: resolve(__dirname, 'src/router.ts'),
             },
             name: 'NHentaiComponents',
             formats: ['es'],

@@ -2,23 +2,16 @@
 import { getGalleryInfo, favoriteGallery } from '@nhentai/api'
 import type { IGallery, Tag } from '@nhentai/api'
 import { TagTypeEnum } from '@nhentai/api'
+import { LangEnum, BaseBtn, PageLoader } from '@nhentai/components'
 import { handleImageError } from '@nhentai/utils'
 import { intervalToDuration, format } from 'date-fns'
-import { ref, onMounted, onUnmounted, inject, computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-
-import { LangEnum } from '@/enums'
-import { DownloadManagerKey } from '@/types/download'
-
-import BaseBtn from '../BaseBtn.vue'
-import PageLoader from '../PageLoader.vue'
 
 const route = useRoute<'Detail'>()
 const router = useRouter()
 const gallery = ref<IGallery | null>(null)
 const loading = ref(true)
-
-const dm = inject(DownloadManagerKey, null)
 
 const groupedTags = computed(() => {
     if (!gallery.value) return []
@@ -92,34 +85,6 @@ async function toggleFavorite() {
     }
 }
 
-// 下载相关
-const downloaded = ref(false)
-const downloadProgress = ref(0)
-
-if (dm) {
-    const unsubscribe = dm.onProgress((id, percent, done) => {
-        if (id !== gallery.value?.id) return
-        if (done) {
-            dm.addDownload(id)
-            downloaded.value = true
-            downloadProgress.value = 0
-        } else {
-            downloadProgress.value = percent
-        }
-    })
-
-    onUnmounted(() => {
-        unsubscribe()
-    })
-}
-
-async function handleDownload() {
-    if (!gallery.value || !dm) return
-    const id = gallery.value.id
-    downloadProgress.value = 0
-    dm.startDownload(id)
-}
-
 function goTag(tag: Tag) {
     for (const item of TagTypeEnum.items) {
         if (item.value === tag.type) {
@@ -137,9 +102,6 @@ onMounted(async () => {
     const id = Number(route.params.id)
     try {
         gallery.value = await getGalleryInfo(id)
-        if (dm) {
-            downloaded.value = await dm.isDownloaded(id)
-        }
     } finally {
         loading.value = false
     }
@@ -152,14 +114,12 @@ onMounted(async () => {
 
     <!-- Detail 内容 -->
     <template v-else-if="gallery">
-        <!-- ===== 上半部分：移动端上下布局 / 桌面端左右布局 ===== -->
         <div
             :class="[
                 'mx-auto mt-4 mb-6 flex max-w-277.5 rounded-xl bg-[#2A3744]',
                 'flex-col items-center px-4 py-6 md:flex-row md:gap-8 md:px-6 md:py-8',
             ]"
         >
-            <!-- 左边（移动端：上方）封面 -->
             <div class="shrink-0">
                 <img
                     :src="coverUrl"
@@ -169,17 +129,13 @@ onMounted(async () => {
                 />
             </div>
 
-            <!-- 右边（移动端：下方）信息 -->
             <div class="flex min-w-0 flex-col gap-4">
-                <!-- 标题 -->
                 <h1 class="flex items-center gap-3 text-3xl leading-snug font-bold text-white">
                     <img v-if="langIcon" :src="langIcon" class="rounded-0.5 h-7 w-7 shrink-0" />
                     {{ gallery.title.japanese || gallery.title.english || gallery.title.pretty }}
                 </h1>
 
-                <!-- 信息行：Tags / Artists / Groups / Pages / Uploaded -->
                 <div class="flex flex-col gap-3 text-lg">
-                    <!-- Tag 分组 -->
                     <div v-for="group in groupedTags" :key="group.label" class="flex items-start gap-4">
                         <span class="w-28 shrink-0 text-right text-gray-400">{{ group.label }}:</span>
                         <div class="flex flex-wrap gap-1">
@@ -195,59 +151,23 @@ onMounted(async () => {
                         </div>
                     </div>
 
-                    <!-- Pages -->
                     <div class="flex items-center gap-4">
                         <span class="w-28 shrink-0 text-right text-gray-400">Pages:</span>
                         <span class="text-gray-300">{{ gallery.num_pages }}</span>
                     </div>
 
-                    <!-- Uploaded -->
                     <div class="flex items-center gap-4">
                         <span class="w-28 shrink-0 text-right text-gray-400">Uploaded:</span>
                         <span class="text-gray-300">{{ uploadDate }}</span>
                     </div>
                 </div>
 
-                <!-- 按钮组 -->
                 <div class="mt-2 flex items-center gap-3 self-start">
-                    <!-- Favorite 按钮 -->
                     <BaseBtn variant="danger" size="semibold" :disabled="favoriting" @click="toggleFavorite">
                         {{ gallery.is_favorited ? '♥ Unfavorite' : '♡ Favorite' }}
                         ({{ (gallery.num_favorites ?? 0).toLocaleString() }})
                     </BaseBtn>
 
-                    <!-- 下载按钮 -->
-                    <BaseBtn
-                        v-if="dm && !downloaded && !downloadProgress"
-                        variant="info"
-                        size="semibold"
-                        @click="handleDownload"
-                    >
-                        <svg class="inline-block h-5 w-5 fill-current align-middle" viewBox="0 0 512 512">
-                            <path
-                                d="M216 0h80c13.3 0 24 10.7 24 24v168h87.7c17.8 0 26.7 21.5 14.1 34.1L269.7 378.3c-7.5 7.5-19.8 7.5-27.3 0L90.1 226.1c-12.6-12.6-3.7-34.1 14.1-34.1H192V24c0-13.3 10.7-24 24-24zm296 376v112c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V376c0-13.3 10.7-24 24-24h146.7l49 49c20.1 20.1 52.5 20.1 72.6 0l49-49H488c13.3 0 24 10.7 24 24zm-124 88c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20zm64 0c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20z"
-                            />
-                        </svg>
-                        下载
-                    </BaseBtn>
-                    <!-- 下载中：百分比 -->
-                    <BaseBtn
-                        v-if="dm && downloadProgress > 0 && downloadProgress < 100"
-                        variant="warning"
-                        size="semibold"
-                        disabled
-                    >
-                        下载中 {{ downloadProgress }}%
-                    </BaseBtn>
-                    <!-- 已下载 -->
-                    <span
-                        v-if="dm && downloaded && !downloadProgress"
-                        class="rounded-md bg-green-400 px-5 py-2 text-base font-semibold text-white"
-                    >
-                        ✓ 已下载
-                    </span>
-
-                    <!-- 滚动预览 -->
                     <BaseBtn variant="success" size="semibold" @click="goSingle()">
                         <svg class="inline-block h-5 w-5 fill-current align-middle" viewBox="0 0 448 512">
                             <path
@@ -260,7 +180,6 @@ onMounted(async () => {
             </div>
         </div>
 
-        <!-- ===== 下半部分：所有漫画缩略图 ===== -->
         <div class="mx-auto w-fit rounded-xl bg-[#2A3744] px-6 py-6">
             <div
                 class="3xl:grid-cols-9 grid grid-cols-2 justify-center gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7"
