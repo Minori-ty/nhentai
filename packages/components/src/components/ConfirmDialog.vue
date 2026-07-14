@@ -3,13 +3,23 @@ import { useTemplateRef } from 'vue'
 
 import BaseBtn from './BaseBtn.vue'
 
+/**
+ * 确认弹窗组件。
+ *
+ * 使用原生 `<dialog>` + Teleport 渲染，带警告图标和确认/取消按钮。
+ * 通过 `show()` / `close()` 方法控制显隐，父组件监听 `confirm` 事件获取确认结果。
+ */
 defineProps<{
+    /** 弹窗标题（展示在警告文案中） */
     title: string
+    /** 弹窗描述文案，默认 "已经下载过了。" */
     message?: string
+    /** 确认按钮文字，默认 "重新下载" */
     confirmText?: string
 }>()
 
 const emit = defineEmits<{
+    /** 用户点击确认按钮时触发 */
     confirm: []
 }>()
 
@@ -19,11 +29,13 @@ function onDialogClose() {
     document.body.style.overflow = ''
 }
 
+/** 打开弹窗 */
 function show() {
     dialogRef.value?.showModal()
     document.body.style.overflow = 'hidden'
 }
 
+/** 关闭弹窗 */
 function close() {
     dialogRef.value?.close()
 }

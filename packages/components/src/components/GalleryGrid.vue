@@ -6,18 +6,29 @@ import { LangEnum } from '../enums'
 import LoadingSpinner from './LoadingSpinner.vue'
 import PageLoader from './PageLoader.vue'
 
+/**
+ * 画廊网格中的单项，扩展自 API 的 IResult。
+ * `_page` 记录该条目所在的分页页码，用于无限滚动定位。
+ */
 export interface GalleryItem extends IResult {
     _page: number
 }
 
 const props = withDefaults(
     defineProps<{
+        /** 画廊条目列表，每项需包含 `_page` 字段 */
         items: GalleryItem[]
+        /** 是否处于初始加载状态（显示 PageLoader） */
         loading?: boolean
+        /** 是否正在加载更多数据（底部显示 LoadingSpinner） */
         loadingMore?: boolean
+        /** 是否已到最后一页（显示 "已经没有了"） */
         isEnd?: boolean
+        /** 空结果时的提示文字，默认 "No results found" */
         emptyText?: string
+        /** 紧凑模式：不显示初始加载器、底部加载提示、无更多提示和空提示 */
         compact?: boolean
+        /** 点击画廊时是否在新标签打开，默认 false */
         openInNewTab?: boolean
     }>(),
     {
@@ -25,6 +36,10 @@ const props = withDefaults(
     },
 )
 
+/**
+ * 根据 tag_ids 匹配语言图标。
+ * 遍历 LangEnum 条目，返回匹配语言对应的 SVG icon URL。
+ */
 function getLangIcon(tagIds: number[]): string | undefined {
     for (const item of LangEnum.items) {
         if (tagIds.includes(item.value)) return item.raw.icon
@@ -32,6 +47,7 @@ function getLangIcon(tagIds: number[]): string | undefined {
     return undefined
 }
 
+/** 生成缩略图 CDN URL */
 function getThumbnailUrl(thumbnail: string): string {
     return `https://t1.nhentai.net/${thumbnail}`
 }
@@ -56,7 +72,10 @@ function getThumbnailUrl(thumbnail: string): string {
             >
                 <!-- 封面图 -->
                 <div :class="['relative mx-auto max-h-80 overflow-hidden rounded-lg bg-gray-800', 'w-full md:w-56.25']">
-                    <!-- overlay slot：由父组件控制下载按钮等覆盖内容 -->
+                    <!--
+                        @slot 封面图覆盖层，由父组件控制下载按钮等覆盖内容
+                        @binding {GalleryItem} item - 当前条目
+                    -->
                     <slot name="overlay" :item="item" />
 
                     <img

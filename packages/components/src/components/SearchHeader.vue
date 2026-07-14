@@ -4,11 +4,24 @@ import { ref, onMounted, onUnmounted, useTemplateRef } from 'vue'
 import logoSvg from '../assets/logo.svg'
 import BaseBtn from './BaseBtn.vue'
 
+/**
+ * 顶部搜索栏组件。
+ *
+ * 包含 logo、搜索输入框、搜索按钮、Favorites 入口和用户头像/名称。
+ * 移动端／桌面端自适应布局：桌面端按钮+用户信息直接展示，移动端折叠为汉堡菜单。
+ *
+ * @event search - 用户触发搜索时发出，参数为搜索关键字
+ * @event favorites - 用户点击 Favorites 时发出
+ */
 const props = withDefaults(
     defineProps<{
+        /** 搜索输入框的初始值 */
         query?: string
+        /** 当前登录用户名，为空时不显示 */
         userName?: string
+        /** 当前登录用户头像 URL，为空时不显示 */
         userAvatar?: string
+        /** 是否启用移动端布局（图标按钮 + 汉堡菜单），默认 false */
         isMobile?: boolean
     }>(),
     {
@@ -20,7 +33,9 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
+    /** 用户触发搜索，参数为搜索关键词 */
     search: [query: string]
+    /** 用户点击 Favorites 入口 */
     favorites: []
 }>()
 
@@ -34,6 +49,7 @@ function toggleMenu() {
     menuOpen.value = !menuOpen.value
 }
 
+/** 点击菜单外部区域时关闭下拉菜单 */
 function closeMenu(e: MouseEvent) {
     const target = e.target
     if (target instanceof Node) {

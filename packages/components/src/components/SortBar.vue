@@ -1,9 +1,20 @@
 <script lang="ts" setup>
 import { SortEnum, type SortMode } from '@nhentai/api'
 
+/**
+ * 排序栏组件。
+ *
+ * 显示排序按钮行（Recent / Today / Week / All Time），高亮当前选中项。
+ * 通过 `update:sort` 事件双向绑定当前排序模式。
+ *
+ * @event update:sort - 用户切换排序时触发，参数为新的 SortMode
+ */
 defineProps<{
+    /** 当前选中的排序模式 */
     sort: SortMode
+    /** 搜索结果总数，显示在排序栏上方 */
     total: number
+    /** 结果计数标签文字，默认 "项结果" */
     label?: string
 }>()
 

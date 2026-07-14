@@ -2,10 +2,19 @@
 import { throttle } from 'lodash-es'
 import { ref, onMounted, onUnmounted } from 'vue'
 
+/**
+ * 固定定位的分页指示器。
+ *
+ * 监听页面滚动，根据 `[data-page]` 属性自动更新当前页码，
+ * 显示为 "当前页 / 总页数" 的悬浮标签。
+ */
 const props = withDefaults(
     defineProps<{
+        /** 总页数 */
         numPages: number
+        /** 初始页码（从 URL 等来源恢复），默认 1 */
         initialPage?: number
+        /** 移动端布局：指示器贴在右上角；桌面端则在右侧居中 */
         isMobile?: boolean
     }>(),
     {
@@ -15,6 +24,7 @@ const props = withDefaults(
 
 const currentPage = ref(props.initialPage || 1)
 
+/** 根据已滚动的 `[data-page]` 元素计算当前页码 */
 function updateCurrentPage() {
     const items = document.querySelectorAll('[data-page]')
     if (items.length === 0) return

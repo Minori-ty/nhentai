@@ -1,8 +1,17 @@
 <script lang="ts" setup>
+/**
+ * 基础按钮组件。
+ *
+ * 提供多种风格变体和尺寸，支持禁用状态。
+ * 内容通过默认 slot 传入。
+ */
 withDefaults(
     defineProps<{
+        /** 按钮样式变体 */
         variant?: 'primary' | 'danger' | 'info' | 'success' | 'warning' | 'primary-outline' | 'secondary-outline'
+        /** 按钮尺寸：sm（小圆角）、normal（标准圆角）、semibold（粗体中等圆角） */
         size?: 'normal' | 'semibold' | 'sm'
+        /** 是否禁用 */
         disabled?: boolean
     }>(),
     {
