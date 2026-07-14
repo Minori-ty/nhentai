@@ -5,6 +5,8 @@ import { BaseBtn, GalleryGrid, PageIndicator } from '@nhentai/components'
 import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
+import DownloadOverlay from '../components/DownloadOverlay.vue'
+import { useDownload, batchCheckDownloaded } from '../composables/useDownload'
 import { useInfiniteScroll } from '../composables/useInfiniteScroll'
 
 type Item = IResult & { _page: number }
@@ -39,6 +41,27 @@ const loadingMore = ref(false)
 const query = ref(String(route.query.q || ''))
 const total = ref(0)
 
+const { dm, downloadedIds, downloadProgress } = useDownload()
+
+function handleStartDownload(id: number) {
+    downloadProgress.value = new Map([...downloadProgress.value, [id, 0]])
+    dm.startDownload(id)
+}
+
+function handleRemoveDownload(id: number) {
+    dm.removeDownload(id)
+    const next = new Set(downloadedIds.value)
+    next.delete(id)
+    downloadedIds.value = next
+}
+
+function handleReDownload(id: number) {
+    const next = new Set(downloadedIds.value)
+    next.delete(id)
+    downloadedIds.value = next
+    handleStartDownload(id)
+}
+
 const isEnd = computed(() => page.value === numPages.value)
 
 async function loadFavorites() {
@@ -50,6 +73,7 @@ async function loadFavorites() {
         results.value = data.result.map((item) => ({ ...item, _page: initialPage }))
         numPages.value = data.num_pages
         total.value = data.total
+        batchCheckDownloaded(data.result.map((item) => item.id))
     } finally {
         loading.value = false
     }
@@ -65,6 +89,7 @@ async function loadMore() {
         page.value = nextPage
         numPages.value = data.num_pages
         total.value = data.total
+        batchCheckDownloaded(data.result.map((item) => item.id))
     } finally {
         loadingMore.value = false
     }
@@ -112,7 +137,19 @@ onMounted(() => {
         :loading-more="loadingMore"
         :is-end="isEnd"
         empty-text="No favorites found"
-    />
+        :open-in-new-tab="true"
+    >
+        <template #overlay="{ item }">
+            <DownloadOverlay
+                :item="item"
+                :downloaded-ids="downloadedIds"
+                :download-progress="downloadProgress"
+                @start-download="handleStartDownload"
+                @remove-download="handleRemoveDownload"
+                @re-download="handleReDownload"
+            />
+        </template>
+    </GalleryGrid>
 
     <!-- 页码指示器 -->
     <PageIndicator :num-pages="numPages" :initial-page="initialPage" />

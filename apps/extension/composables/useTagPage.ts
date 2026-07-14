@@ -1,15 +1,15 @@
 import { getTags, getTagInfo, type IResult } from '@nhentai/api'
 import { SortEnum, type SortMode, type TagType } from '@nhentai/api'
 import { ref, onMounted, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 
+import { batchCheckDownloaded } from './useDownload'
 import { useInfiniteScroll } from './useInfiniteScroll'
 
 type TagRouteName = 'Tag' | 'Group' | 'Artist' | 'Character' | 'Language' | 'Category'
 
 export function useTagPage(type: TagType) {
     const route = useRoute<TagRouteName>()
-    const router = useRouter()
     const name = route.params.name
 
     const results = ref<(IResult & { _page: number })[]>([])
@@ -35,6 +35,7 @@ export function useTagPage(type: TagType) {
             const data = await getTags({ tag_id: tagId, page: 1, sort: sort.value })
             results.value = data.result.map((item) => ({ ...item, _page: 1 }))
             numPages.value = data.num_pages
+            batchCheckDownloaded(data.result.map((item) => item.id))
         } finally {
             loading.value = false
         }
@@ -49,6 +50,7 @@ export function useTagPage(type: TagType) {
             results.value.push(...data.result.map((item) => ({ ...item, _page: nextPage })))
             page.value = nextPage
             numPages.value = data.num_pages
+            batchCheckDownloaded(data.result.map((item) => item.id))
         } finally {
             loadingMore.value = false
         }
@@ -64,13 +66,10 @@ export function useTagPage(type: TagType) {
             const data = await getTags({ tag_id: tagId, page: 1, sort: sort.value })
             results.value = data.result.map((item) => ({ ...item, _page: 1 }))
             numPages.value = data.num_pages
+            batchCheckDownloaded(data.result.map((item) => item.id))
         } finally {
             loading.value = false
         }
-    }
-
-    function goToDetail(id: number) {
-        router.push({ name: 'Detail', params: { id } })
     }
 
     useInfiniteScroll(loadMore, page)
@@ -90,6 +89,5 @@ export function useTagPage(type: TagType) {
         loadingMore,
         isEnd,
         setSort,
-        goToDetail,
     }
 }

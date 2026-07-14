@@ -2,13 +2,13 @@
 import { getGalleryInfo, favoriteGallery } from '@nhentai/api'
 import type { IGallery, Tag } from '@nhentai/api'
 import { TagTypeEnum } from '@nhentai/api'
-import { LangEnum, BaseBtn, PageLoader } from '@nhentai/components'
+import { LangEnum, BaseBtn, ConfirmDialog, PageLoader } from '@nhentai/components'
 import { handleImageError } from '@nhentai/utils'
 import { intervalToDuration, format } from 'date-fns'
-import { ref, onMounted, computed } from 'vue'
+import { ref, useTemplateRef, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import { useDownload } from '../composables/useDownload'
+import { useDownload, batchCheckDownloaded } from '../composables/useDownload'
 
 const route = useRoute<'Detail'>()
 const router = useRouter()
@@ -99,6 +99,39 @@ async function handleDownload() {
     dm.startDownload(id)
 }
 
+const reDownloadDialogRef = useTemplateRef('reDownloadDialogRef')
+const removeDialogRef = useTemplateRef('removeDialogRef')
+const itemTitle = computed(
+    () => gallery.value?.title.japanese || gallery.value?.title.english || `#${gallery.value?.id}`,
+)
+
+function askReDownload() {
+    reDownloadDialogRef.value?.show()
+}
+
+function onReDownloadConfirm() {
+    if (!gallery.value) return
+    const id = gallery.value.id
+    const next = new Set(downloadedIds.value)
+    next.delete(id)
+    downloadedIds.value = next
+    downloadProgress.value = new Map([...downloadProgress.value, [id, 0]])
+    dm.startDownload(id)
+}
+
+function askRemove() {
+    removeDialogRef.value?.show()
+}
+
+function onRemoveConfirm() {
+    if (!gallery.value) return
+    const id = gallery.value.id
+    dm.removeDownload(id)
+    const next = new Set(downloadedIds.value)
+    next.delete(id)
+    downloadedIds.value = next
+}
+
 function goTag(tag: Tag) {
     for (const item of TagTypeEnum.items) {
         if (item.value === tag.type) {
@@ -116,6 +149,7 @@ onMounted(async () => {
     const id = Number(route.params.id)
     try {
         gallery.value = await getGalleryInfo(id)
+        batchCheckDownloaded([id])
     } finally {
         loading.value = false
     }
@@ -215,13 +249,19 @@ onMounted(async () => {
                     >
                         下载中 {{ currentProgress }}%
                     </BaseBtn>
-                    <!-- 已下载 -->
-                    <span
+                    <!-- 已下载：可点击重新下载 -->
+                    <button
                         v-if="isDownloaded && !currentProgress"
-                        class="rounded-md bg-green-400 px-5 py-2 text-base font-semibold text-white"
+                        class="relative cursor-pointer rounded-md bg-green-400 px-5 py-2 text-base font-semibold text-white transition-colors hover:bg-green-300"
+                        @click="askReDownload"
                     >
                         ✓ 已下载
-                    </span>
+                        <span
+                            class="absolute -top-1.5 -right-1.5 flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-red-500 text-[10px] text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-400"
+                            @click.stop="askRemove"
+                            >×</span
+                        >
+                    </button>
 
                     <!-- 滚动预览 -->
                     <BaseBtn variant="success" size="semibold" @click="goSingle()">
@@ -263,4 +303,13 @@ onMounted(async () => {
             </div>
         </div>
     </template>
+
+    <ConfirmDialog ref="reDownloadDialogRef" :title="itemTitle" @confirm="onReDownloadConfirm" />
+    <ConfirmDialog
+        ref="removeDialogRef"
+        :title="itemTitle"
+        message="已下载。"
+        confirm-text="移除"
+        @confirm="onRemoveConfirm"
+    />
 </template>

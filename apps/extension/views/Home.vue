@@ -4,6 +4,8 @@ import type { IResult } from '@nhentai/api'
 import { GalleryGrid, PageIndicator } from '@nhentai/components'
 import { ref, onMounted, computed } from 'vue'
 
+import DownloadOverlay from '../components/DownloadOverlay.vue'
+import { useDownload, batchCheckDownloaded } from '../composables/useDownload'
 import { useInfiniteScroll } from '../composables/useInfiniteScroll'
 
 type Item = IResult & { _page: number }
@@ -17,6 +19,27 @@ const loadingMore = ref(false)
 // Popular Now
 const popularItems = ref<Item[]>([])
 
+const { dm, downloadedIds, downloadProgress } = useDownload()
+
+function handleStartDownload(id: number) {
+    downloadProgress.value = new Map([...downloadProgress.value, [id, 0]])
+    dm.startDownload(id)
+}
+
+function handleRemoveDownload(id: number) {
+    dm.removeDownload(id)
+    const next = new Set(downloadedIds.value)
+    next.delete(id)
+    downloadedIds.value = next
+}
+
+function handleReDownload(id: number) {
+    const next = new Set(downloadedIds.value)
+    next.delete(id)
+    downloadedIds.value = next
+    handleStartDownload(id)
+}
+
 async function loadPopular() {
     try {
         const items = await getPopular()
@@ -28,19 +51,6 @@ async function loadPopular() {
 
 const isEnd = computed(() => page.value === numPages.value)
 
-async function loadGallery() {
-    loading.value = true
-    results.value = []
-    page.value = 1
-    try {
-        const data = await getGallery(1)
-        results.value = data.result.map((item) => ({ ...item, _page: 1 }))
-        numPages.value = data.num_pages
-    } finally {
-        loading.value = false
-    }
-}
-
 async function loadMore() {
     if (loadingMore.value || isEnd.value) return
     loadingMore.value = true
@@ -50,6 +60,7 @@ async function loadMore() {
         results.value.push(...data.result.map((item) => ({ ...item, _page: nextPage })))
         page.value = nextPage
         numPages.value = data.num_pages
+        batchCheckDownloaded(data.result.map((item) => item.id))
     } finally {
         loadingMore.value = false
     }
@@ -61,6 +72,21 @@ onMounted(() => {
     loadGallery()
     loadPopular()
 })
+
+// 加载完成后检查已下载状态
+async function loadGallery() {
+    loading.value = true
+    results.value = []
+    page.value = 1
+    try {
+        const data = await getGallery(1)
+        results.value = data.result.map((item) => ({ ...item, _page: 1 }))
+        numPages.value = data.num_pages
+        batchCheckDownloaded(data.result.map((item) => item.id))
+    } finally {
+        loading.value = false
+    }
+}
 </script>
 
 <template>
@@ -69,12 +95,40 @@ onMounted(() => {
         <div class="mx-auto w-fit px-4 pt-6">
             <h2 class="mb-4 text-xl font-bold text-white">Popular Now</h2>
         </div>
-        <GalleryGrid :items="popularItems" :is-end="true" compact />
+        <GalleryGrid :items="popularItems" :is-end="true" compact :open-in-new-tab="true">
+            <template #overlay="{ item }">
+                <DownloadOverlay
+                    :item="item"
+                    :downloaded-ids="downloadedIds"
+                    :download-progress="downloadProgress"
+                    @start-download="handleStartDownload"
+                    @remove-download="handleRemoveDownload"
+                    @re-download="handleReDownload"
+                />
+            </template>
+        </GalleryGrid>
     </template>
 
     <!-- 主列表 -->
     <div :class="popularItems.length > 0 ? 'mt-8' : ''">
-        <GalleryGrid :items="results" :loading="loading" :loading-more="loadingMore" :is-end="isEnd" />
+        <GalleryGrid
+            :items="results"
+            :loading="loading"
+            :loading-more="loadingMore"
+            :is-end="isEnd"
+            :open-in-new-tab="true"
+        >
+            <template #overlay="{ item }">
+                <DownloadOverlay
+                    :item="item"
+                    :downloaded-ids="downloadedIds"
+                    :download-progress="downloadProgress"
+                    @start-download="handleStartDownload"
+                    @remove-download="handleRemoveDownload"
+                    @re-download="handleReDownload"
+                />
+            </template>
+        </GalleryGrid>
     </div>
 
     <PageIndicator :num-pages="numPages" :initial-page="1" />

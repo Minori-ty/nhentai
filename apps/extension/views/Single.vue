@@ -16,7 +16,7 @@ function resolveStartPage(): number {
     return Number.isFinite(raw) && raw >= 1 ? raw : 1
 }
 
-function getImageUrl(page: { number: number; path: string }, _mediaId: string): string {
+function getImageUrl(page: { number: number; path: string }): string {
     return `https://i1.nhentai.net/${page.path}`
 }
 
@@ -76,7 +76,7 @@ onMounted(async () => {
                     {{ page.number }} / {{ gallery.num_pages }}
                 </span>
                 <img
-                    :src="getImageUrl(page, gallery.media_id)"
+                    :src="getImageUrl(page)"
                     :style="getImageStyle(page)"
                     class="block bg-[#2A3744] object-contain"
                     :alt="`Page ${page.number}`"

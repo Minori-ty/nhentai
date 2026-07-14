@@ -1,7 +1,7 @@
 import { getTags, getTagInfo, type IResult } from '@nhentai/api'
 import { SortEnum, type SortMode, type TagType } from '@nhentai/api'
 import { ref, onMounted, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 
 import { useInfiniteScroll } from './useInfiniteScroll'
 
@@ -9,7 +9,6 @@ type TagRouteName = 'Tag' | 'Group' | 'Artist' | 'Character' | 'Language' | 'Cat
 
 export function useTagPage(type: TagType) {
     const route = useRoute<TagRouteName>()
-    const router = useRouter()
     const name = route.params.name
 
     const results = ref<(IResult & { _page: number })[]>([])
@@ -69,10 +68,6 @@ export function useTagPage(type: TagType) {
         }
     }
 
-    function goToDetail(id: number) {
-        router.push({ name: 'Detail', params: { id } })
-    }
-
     useInfiniteScroll(loadMore, page)
 
     onMounted(() => {
@@ -90,6 +85,5 @@ export function useTagPage(type: TagType) {
         loadingMore,
         isEnd,
         setSort,
-        goToDetail,
     }
 }

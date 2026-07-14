@@ -28,3 +28,18 @@ export function useDownload() {
         downloadProgress,
     }
 }
+
+/**
+ * 批量检查一组画廊 ID 的下载状态，更新 downloadedIds。
+ * 在视图加载条目列表后调用，确保已下载的条目显示绿色标记。
+ */
+export async function batchCheckDownloaded(ids: number[]) {
+    if (!_dm) return
+    const pending = ids.filter((id) => !downloadedIds.value.has(id) && !downloadProgress.value.has(id))
+    if (pending.length === 0) return
+    const checkPromises = pending.map((id) => _dm!.isDownloaded(id).then((ok) => (ok ? id : null)))
+    const found = (await Promise.all(checkPromises)).filter(Boolean) as number[]
+    if (found.length > 0) {
+        downloadedIds.value = new Set([...downloadedIds.value, ...found])
+    }
+}

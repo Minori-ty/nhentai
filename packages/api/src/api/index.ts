@@ -138,23 +138,6 @@ export function getTags({
 }
 
 /**
- * 请求服务端打包画廊为 ZIP 文件。
- *
- * 返回短时有效的签名下载 URL 和过期时间戳。该 URL 只能用一次，
- * 客户端拿到后请尽快发起下载。
- * 需要登录。
- *
- * @param id - 画廊 ID
- * @see https://nhentai.net/api/v2/docs#/galleries/download_gallery_api_v2_galleries__gallery_id__download_post
- */
-export function downloadGallery(id: number): Promise<{ url: string; expires_at: number }> {
-    return request(`/galleries/${id}/download`, {
-        method: 'POST',
-        params: { format: 'zip' },
-    })
-}
-
-/**
  * 获取当前流行（热门）的 5 个画廊。
  *
  * 公开接口。始终返回固定 5 元组。

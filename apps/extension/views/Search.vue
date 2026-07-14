@@ -5,6 +5,8 @@ import { GalleryGrid, PageIndicator, SortBar } from '@nhentai/components'
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
+import DownloadOverlay from '../components/DownloadOverlay.vue'
+import { useDownload, batchCheckDownloaded } from '../composables/useDownload'
 import { useInfiniteScroll } from '../composables/useInfiniteScroll'
 import { searchBus, triggerSearch } from '../composables/useSearchBus'
 
@@ -22,6 +24,27 @@ const sort = ref<SortMode>('date')
 const loading = ref(false)
 const loadingMore = ref(false)
 
+const { dm, downloadedIds, downloadProgress } = useDownload()
+
+function handleStartDownload(id: number) {
+    downloadProgress.value = new Map([...downloadProgress.value, [id, 0]])
+    dm.startDownload(id)
+}
+
+function handleRemoveDownload(id: number) {
+    dm.removeDownload(id)
+    const next = new Set(downloadedIds.value)
+    next.delete(id)
+    downloadedIds.value = next
+}
+
+function handleReDownload(id: number) {
+    const next = new Set(downloadedIds.value)
+    next.delete(id)
+    downloadedIds.value = next
+    handleStartDownload(id)
+}
+
 const isEnd = computed(() => page.value === numPages.value)
 
 async function doSearch() {
@@ -33,6 +56,7 @@ async function doSearch() {
         results.value = data.result.map((item) => ({ ...item, _page: 1 }))
         numPages.value = data.num_pages
         total.value = data.total
+        batchCheckDownloaded(data.result.map((item) => item.id))
     } finally {
         loading.value = false
     }
@@ -47,6 +71,7 @@ async function loadMore() {
         results.value.push(...data.result.map((item) => ({ ...item, _page: nextPage })))
         page.value = nextPage
         numPages.value = data.num_pages
+        batchCheckDownloaded(data.result.map((item) => item.id))
     } finally {
         loadingMore.value = false
     }
@@ -88,7 +113,24 @@ onMounted(() => {
 <template>
     <SortBar :total="total" :sort="sort" @update:sort="setSort" />
 
-    <GalleryGrid :items="results" :loading="loading" :loading-more="loadingMore" :is-end="isEnd" />
+    <GalleryGrid
+        :items="results"
+        :loading="loading"
+        :loading-more="loadingMore"
+        :is-end="isEnd"
+        :open-in-new-tab="true"
+    >
+        <template #overlay="{ item }">
+            <DownloadOverlay
+                :item="item"
+                :downloaded-ids="downloadedIds"
+                :download-progress="downloadProgress"
+                @start-download="handleStartDownload"
+                @remove-download="handleRemoveDownload"
+                @re-download="handleReDownload"
+            />
+        </template>
+    </GalleryGrid>
 
     <PageIndicator :num-pages="numPages" />
 </template>

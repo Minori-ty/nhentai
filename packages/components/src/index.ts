@@ -24,5 +24,5 @@ export { default as SortBar } from './components/SortBar.vue'
 export { LangEnum } from './enums'
 
 // --- 从 @nhentai/api 重导出（方便组件使用者） ---
-export type { SortMode, TagType, MsgType, MsgTarget, TagRouteName } from '@nhentai/api'
-export { SortEnum, TagTypeEnum, MsgTypeEnum, MsgTargetEnum } from '@nhentai/api'
+export type { SortMode, TagType, TagRouteName } from '@nhentai/api'
+export { SortEnum, TagTypeEnum } from '@nhentai/api'

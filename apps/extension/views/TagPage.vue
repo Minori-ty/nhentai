@@ -3,6 +3,8 @@ import { TagTypeEnum, type TagType } from '@nhentai/api'
 import { GalleryGrid, PageIndicator, SortBar } from '@nhentai/components'
 import { computed } from 'vue'
 
+import DownloadOverlay from '../components/DownloadOverlay.vue'
+import { useDownload } from '../composables/useDownload'
 import { useTagPage } from '../composables/useTagPage'
 
 const props = defineProps<{
@@ -10,6 +12,26 @@ const props = defineProps<{
 }>()
 
 const { name, results, numPages, total, sort, loading, loadingMore, isEnd, setSort } = useTagPage(props.tagType)
+const { dm, downloadedIds, downloadProgress } = useDownload()
+
+function handleStartDownload(id: number) {
+    downloadProgress.value = new Map([...downloadProgress.value, [id, 0]])
+    dm.startDownload(id)
+}
+
+function handleRemoveDownload(id: number) {
+    dm.removeDownload(id)
+    const next = new Set(downloadedIds.value)
+    next.delete(id)
+    downloadedIds.value = next
+}
+
+function handleReDownload(id: number) {
+    const next = new Set(downloadedIds.value)
+    next.delete(id)
+    downloadedIds.value = next
+    handleStartDownload(id)
+}
 
 const title = computed(() => {
     const label = TagTypeEnum.label(props.tagType)
@@ -22,7 +44,24 @@ const title = computed(() => {
 
     <SortBar :total="total" :sort="sort" @update:sort="setSort" />
 
-    <GalleryGrid :items="results" :loading="loading" :loading-more="loadingMore" :is-end="isEnd" />
+    <GalleryGrid
+        :items="results"
+        :loading="loading"
+        :loading-more="loadingMore"
+        :is-end="isEnd"
+        :open-in-new-tab="true"
+    >
+        <template #overlay="{ item }">
+            <DownloadOverlay
+                :item="item"
+                :downloaded-ids="downloadedIds"
+                :download-progress="downloadProgress"
+                @start-download="handleStartDownload"
+                @remove-download="handleRemoveDownload"
+                @re-download="handleReDownload"
+            />
+        </template>
+    </GalleryGrid>
 
     <PageIndicator :num-pages="numPages" :initial-page="1" />
 </template>

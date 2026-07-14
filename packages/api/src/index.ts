@@ -10,7 +10,6 @@ export {
     favoriteGallery,
     getTagInfo,
     getTags,
-    downloadGallery,
     getPopular,
     getMe,
 } from './api/index'
