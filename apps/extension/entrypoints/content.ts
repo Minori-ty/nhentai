@@ -8,7 +8,6 @@ import App from '../App.vue'
 import router from '../router'
 
 import '../tailwind.css'
-import '@nhentai/components/components.css'
 
 export default defineContentScript({
     matches: ['https://nhentai.net/*'],

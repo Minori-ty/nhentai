@@ -1,5 +1,8 @@
 @import 'tailwindcss';
+@import '@nhentai/components/components.css';
 
-html {
-    scrollbar-gutter: stable both-edges;
+@layer base {
+    html {
+        scrollbar-gutter: stable both-edges;
+    }
 }

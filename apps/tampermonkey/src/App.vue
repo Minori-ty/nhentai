@@ -9,8 +9,9 @@ import { userAvatar, userName } from './composables/useUserAvatar'
 const router = useRouter()
 const route = useRoute()
 
-// 从 URL 的 q 参数还原搜索词（+ 号转空格，兼容 encodeURIComponent 不解码 + 的行为）
-const searchQuery = computed(() => String(route.query.q || '').replace(/\+/g, ' '))
+// 从 URL 的 q 参数还原搜索词（仅 Search 页面，Favorites 有自己的搜索框）
+// + 号转空格，兼容 encodeURIComponent 不解码 + 的行为
+const searchQuery = computed(() => (route.name === 'Search' ? String(route.query.q || '').replace(/\+/g, ' ') : ''))
 
 function onSearch(query: string) {
     triggerSearch(query)
