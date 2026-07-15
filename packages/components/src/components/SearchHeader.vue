@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted, useTemplateRef } from 'vue'
+import { ref, onMounted, onUnmounted, useTemplateRef, watch } from 'vue'
 
 import logoSvg from '../assets/logo.svg'
 import BaseBtn from './BaseBtn.vue'
@@ -40,6 +40,35 @@ const emit = defineEmits<{
 }>()
 
 const inputQuery = ref(props.query)
+
+// 当外部传入的 query 变化时（如 URL 变化），同步到输入框
+watch(
+    () => props.query,
+    (newVal) => {
+        inputQuery.value = newVal
+    },
+)
+
+// 头像 CDN 子域名 fallback（i1 → i4）
+const MAX_CDN_RETRY = 4
+const avatarSrc = ref(props.userAvatar)
+const avatarRetry = ref(0)
+
+watch(
+    () => props.userAvatar,
+    (newVal) => {
+        avatarSrc.value = newVal
+        avatarRetry.value = 0
+    },
+)
+
+/** 头像加载失败时，依次尝试 i1/i2/i3/i4 */
+function onAvatarError() {
+    if (avatarRetry.value >= MAX_CDN_RETRY - 1) return
+    avatarRetry.value++
+    const idx = avatarRetry.value + 1 // i2~i4
+    avatarSrc.value = props.userAvatar.replace(/\/\/i\d+\.nhentai/, `//i${idx}.nhentai`)
+}
 
 // 移动端下拉菜单
 const menuOpen = ref(false)
@@ -116,9 +145,10 @@ function doSearch() {
                 </BaseBtn>
                 <img
                     v-if="userAvatar"
-                    :src="userAvatar"
+                    :src="avatarSrc"
                     alt="avatar"
                     class="h-10 w-10 shrink-0 rounded-full border-2 border-gray-600 transition-colors hover:border-gray-400"
+                    @error="onAvatarError"
                 />
                 <span v-if="userName" class="ml-1 text-sm font-medium text-gray-300">{{ userName }}</span>
             </template>
@@ -149,9 +179,10 @@ function doSearch() {
                     <div v-if="userAvatar || userName" class="flex items-center gap-2">
                         <img
                             v-if="userAvatar"
-                            :src="userAvatar"
+                            :src="avatarSrc"
                             alt="avatar"
                             class="h-10 w-10 shrink-0 rounded-full border-2 border-gray-600"
+                            @error="onAvatarError"
                         />
                         <span v-if="userName" class="text-sm font-medium text-gray-300">{{ userName }}</span>
                     </div>

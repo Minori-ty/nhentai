@@ -1,19 +1,16 @@
 <script lang="ts" setup>
-import { getMe } from '@nhentai/api'
 import { SearchHeader } from '@nhentai/components'
-import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
 import { triggerSearch } from './composables/useSearchBus'
-import { setUserAvatar, setUserName, userAvatar, userName } from './composables/useUserAvatar'
+import { userAvatar, userName } from './composables/useUserAvatar'
 
 const router = useRouter()
+const route = useRoute()
 
-// 获取用户信息
-getMe().then((me) => {
-    setUserAvatar(`https://i2.nhentai.net/${me.avatar_url}`)
-    setUserName(me.username)
-})
+// 从 URL 的 q 参数还原搜索词（+ 号转空格，兼容 encodeURIComponent 不解码 + 的行为）
+const searchQuery = computed(() => String(route.query.q || '').replace(/\+/g, ' '))
 
 function onSearch(query: string) {
     triggerSearch(query)
@@ -49,6 +46,7 @@ onMounted(() => {
 
 <template>
     <SearchHeader
+        :query="searchQuery"
         :user-name="userName"
         :user-avatar="userAvatar"
         :is-mobile="true"

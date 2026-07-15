@@ -1,11 +1,18 @@
+import { getMe } from '@nhentai/api'
 import { preconnectImageCDNs } from '@nhentai/utils'
 import { createApp } from 'vue'
 
 import App from './App.vue'
+import { setUserAvatar, setUserName } from './composables/useUserAvatar'
 import router from './router'
 
 import './tailwind.css'
-import '@nhentai/components/components.css'
+
+// 获取用户信息
+getMe().then((me) => {
+    setUserAvatar(`https://i1.nhentai.net/${me.avatar_url}`)
+    setUserName(me.username)
+})
 
 // CDN 预连接
 preconnectImageCDNs()

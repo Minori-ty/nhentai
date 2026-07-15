@@ -2,6 +2,8 @@ import { getMe } from '@nhentai/api'
 import { preconnectImageCDNs } from '@nhentai/utils'
 import { createApp } from 'vue'
 
+import { setUserAvatar, setUserName } from '@/composables/useUserAvatar'
+
 import App from '../App.vue'
 import router from '../router'
 
@@ -13,13 +15,10 @@ export default defineContentScript({
     runAt: 'document_start',
     excludeMatches: Array.from({ length: 4 }, (_, i) => `https://i${i + 1}.nhentai.net/*`),
     async main() {
+        // 获取用户信息
         getMe().then((me) => {
-            const avatar = `https://i2.nhentai.net/${me.avatar_url}`
-            const link = document.createElement('link')
-            link.rel = 'preconnect'
-            link.href = 'https://i2.nhentai.net'
-            link.crossOrigin = 'anonymous'
-            document.head.appendChild(link)
+            setUserAvatar(`https://i1.nhentai.net/${me.avatar_url}`)
+            setUserName(me.username)
         })
         // 创建挂载点
         const root = document.createElement('div')

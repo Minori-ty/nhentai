@@ -16,7 +16,7 @@ const route = useRoute()
 const results = ref<Item[]>([])
 const page = ref(1)
 const numPages = ref(1)
-const query = ref(String(route.query.q || ''))
+const query = ref(String(route.query.q || '').replace(/\+/g, ' '))
 const total = ref(0)
 const sort = ref<SortMode>('date')
 const loading = ref(false)
@@ -80,7 +80,7 @@ onMounted(() => {
     if (searchBus.value.ts > 0) {
         onSearch(searchBus.value.query)
     } else if (route.query.q) {
-        triggerSearch(String(route.query.q))
+        triggerSearch(String(route.query.q).replace(/\+/g, ' '))
     }
 })
 </script>
