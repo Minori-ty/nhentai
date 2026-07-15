@@ -9,7 +9,12 @@ import TagPage from './views/TagPage.vue'
 
 const router = createRouter({
     history: createWebHashHistory(),
-    scrollBehavior() {
+    scrollBehavior(to, _from, savedPosition) {
+        // 需要保留滚动的页面，后退时恢复位置
+        if (to.meta.scrollKeep && savedPosition) {
+            return savedPosition
+        }
+        // 其余页面切换自动置顶
         return { top: 0 }
     },
     routes: [
@@ -17,11 +22,13 @@ const router = createRouter({
             path: '/',
             name: 'Home',
             component: Home,
+            meta: { scrollKeep: true }, // 标记本页保留滚动位置
         },
         {
             path: '/search',
             name: 'Search',
             component: Search,
+            meta: { scrollKeep: true }, // 标记本页保留滚动位置
         },
         {
             path: '/detail/:id',

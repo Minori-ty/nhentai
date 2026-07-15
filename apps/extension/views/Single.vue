@@ -11,13 +11,18 @@ const loading = ref(true)
 const loadedCount = ref(0)
 const listRef = ref<HTMLElement | null>(null)
 
+// --- CDN subdomain 退避策略 ---
+// 成功加载过的 subdomain 会被记住，后续优先使用
+const SUBDOMAINS = ['i1', 'i2', 'i3', 'i4']
+let preferredSubdomain = 'i1'
+
 function resolveStartPage(): number {
     const raw = parseInt(String(route.query.page || ''))
     return Number.isFinite(raw) && raw >= 1 ? raw : 1
 }
 
 function getImageUrl(page: { number: number; path: string }): string {
-    return `https://i1.nhentai.net/${page.path}`
+    return `https://${preferredSubdomain}.nhentai.net/${page.path}`
 }
 
 function getImageStyle(page: { width: number; height: number }) {
@@ -36,13 +41,22 @@ function onImageError(event: Event) {
     if (!(img instanceof HTMLImageElement)) {
         return
     }
-    // CDN subdomain fallback
+    // CDN subdomain 退避：尝试下一个 subdomain，成功则更新首选
     const match = img.src.match(/\/\/(i\d)\./)
     if (!match) return
-    const subdomains = ['i1', 'i2', 'i3', 'i4']
-    const idx = subdomains.indexOf(match[1])
-    if (idx === -1 || idx >= subdomains.length - 1) return
-    img.src = img.src.replace(`//${match[1]}.`, `//${subdomains[idx + 1]}.`)
+    const idx = SUBDOMAINS.indexOf(match[1])
+    if (idx === -1 || idx >= SUBDOMAINS.length - 1) return
+    const nextSub = SUBDOMAINS[idx + 1]
+    img.src = img.src.replace(`//${match[1]}.`, `//${nextSub}.`)
+
+    // 当前失败的是首选 subdomain，则在 fallback 加载成功后更新首选
+    if (match[1] === preferredSubdomain) {
+        const handler = () => {
+            preferredSubdomain = nextSub
+            img.removeEventListener('load', handler)
+        }
+        img.addEventListener('load', handler)
+    }
 }
 
 onMounted(async () => {

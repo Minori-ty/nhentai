@@ -5,7 +5,7 @@ import { TagTypeEnum } from '@nhentai/api'
 import { LangEnum, BaseBtn, PageLoader } from '@nhentai/components'
 import { handleImageError } from '@nhentai/utils'
 import { intervalToDuration, format } from 'date-fns'
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute<'Detail'>()
@@ -98,14 +98,20 @@ function goSingle(page?: number) {
     router.push({ name: 'Single', params: { id: route.params.id }, query: page ? { page } : undefined })
 }
 
-onMounted(async () => {
-    const id = Number(route.params.id)
-    try {
-        gallery.value = await getGalleryInfo(id)
-    } finally {
-        loading.value = false
-    }
-})
+// 监听路由参数变化，支持 KeepAlive 下切换不同 gallery
+watch(
+    () => route.params.id,
+    (newId) => {
+        const id = Number(newId)
+        if (!Number.isFinite(id)) return
+        loading.value = true
+        gallery.value = null
+        getGalleryInfo(id)
+            .then((g) => (gallery.value = g))
+            .finally(() => (loading.value = false))
+    },
+    { immediate: true },
+)
 </script>
 
 <template>
@@ -187,7 +193,7 @@ onMounted(async () => {
                 <div
                     v-for="page in gallery.pages"
                     :key="page.number"
-                    class="group cursor-pointer"
+                    class="group w-full cursor-pointer"
                     @click="goSingle(page.number)"
                 >
                     <div :class="['mx-auto h-80 overflow-hidden rounded-lg bg-gray-800', 'w-full md:w-56.25']">

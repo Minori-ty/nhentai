@@ -5,7 +5,7 @@ import { TagTypeEnum } from '@nhentai/api'
 import { LangEnum, BaseBtn, ConfirmDialog, PageLoader } from '@nhentai/components'
 import { handleImageError } from '@nhentai/utils'
 import { intervalToDuration, format } from 'date-fns'
-import { ref, useTemplateRef, onMounted, computed } from 'vue'
+import { ref, useTemplateRef, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { useDownload, batchCheckDownloaded } from '../composables/useDownload'
@@ -145,15 +145,23 @@ function goSingle(page?: number) {
     router.push({ name: 'Single', params: { id: route.params.id }, query: page ? { page } : undefined })
 }
 
-onMounted(async () => {
-    const id = Number(route.params.id)
-    try {
-        gallery.value = await getGalleryInfo(id)
-        batchCheckDownloaded([id])
-    } finally {
-        loading.value = false
-    }
-})
+// 监听路由参数变化，支持 KeepAlive 下切换不同 gallery
+watch(
+    () => route.params.id,
+    (newId) => {
+        const id = Number(newId)
+        if (!Number.isFinite(id)) return
+        loading.value = true
+        gallery.value = null
+        getGalleryInfo(id)
+            .then((g) => {
+                gallery.value = g
+                batchCheckDownloaded([id])
+            })
+            .finally(() => (loading.value = false))
+    },
+    { immediate: true },
+)
 </script>
 
 <template>
@@ -165,8 +173,8 @@ onMounted(async () => {
         <!-- ===== 上半部分：移动端上下布局 / 桌面端左右布局 ===== -->
         <div
             :class="[
-                'mx-auto mt-4 mb-6 flex max-w-277.5 rounded-xl bg-[#2A3744]',
-                'flex-col items-center px-4 py-6 md:flex-row md:gap-8 md:px-6 md:py-8',
+                'mx-auto mt-4 mb-6 flex max-w-[1110px] rounded-xl bg-[#2A3744]',
+                'items-center px-4 py-6 md:flex-row md:gap-8 md:px-6 md:py-8',
             ]"
         >
             <!-- 左边（移动端：上方）封面 -->
@@ -174,7 +182,7 @@ onMounted(async () => {
                 <img
                     :src="coverUrl"
                     :alt="gallery.title.japanese || gallery.title.english"
-                    :class="['rounded-lg shadow-lg', 'w-full md:w-86']"
+                    :class="['rounded-lg shadow-lg', 'w-84']"
                     @error="handleImageError"
                 />
             </div>
@@ -279,7 +287,11 @@ onMounted(async () => {
         <!-- ===== 下半部分：所有漫画缩略图 ===== -->
         <div class="mx-auto w-fit rounded-xl bg-[#2A3744] px-6 py-6">
             <div
-                class="3xl:grid-cols-9 grid grid-cols-2 justify-center gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7"
+                :class="[
+                    'grid justify-center gap-6',
+                    // ['3xl:grid-cols-9 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7'],
+                    ['grid-cols-5'],
+                ]"
             >
                 <div
                     v-for="page in gallery.pages"
