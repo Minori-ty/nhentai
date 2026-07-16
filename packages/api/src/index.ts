@@ -12,9 +12,11 @@ export {
     getTags,
     getPopular,
     getMe,
+    downloadZip,
 } from './api/index'
 
 // --- 类型 ---
+export type { SearchGalleryOptions, GetFavoritesOptions, GetTagsOptions } from './api/index'
 export type { ISearchResponse, IResult } from './api/types.d'
 export type { IGallery, IFavoriteResponse, Title, Tag, Page, Cover, Thumbnail } from './api/info.d'
 export type { ITags } from './api/tags.d'

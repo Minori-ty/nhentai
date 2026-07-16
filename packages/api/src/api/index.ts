@@ -5,26 +5,52 @@ import type { ITags } from './tags.d'
 import type { ISearchResponse, IResult } from './types.d'
 import type { IUserMe } from './user.d'
 
+/** 搜索画廊的选项 */
+export interface SearchGalleryOptions {
+    /** 搜索关键字，默认 '' */
+    query?: string
+    /** 页码，从 1 开始，默认 1 */
+    page?: number
+    /** 排序方式，默认 date */
+    sort?: SortMode
+}
+
+/** 获取收藏的选项 */
+export interface GetFavoritesOptions {
+    /** 页码，从 1 开始，默认 1 */
+    page?: number
+    /** 搜索关键字（在收藏中过滤），默认 '' */
+    q?: string
+}
+
+/** 根据标签获取画廊的选项 */
+export interface GetTagsOptions {
+    /** 标签 ID（必填） */
+    tag_id: number
+    /** 页码，从 1 开始，默认 1 */
+    page?: number
+    /** 排序方式，默认 date */
+    sort?: SortMode
+}
+
 /**
  * 搜索画廊。
  *
  * 支持关键词、精确短语、排除、标签过滤、数值过滤和日期过滤。
  * 公开接口，无需登录。传入 auth token 可提高速率限制。
  *
- * @param query - 搜索关键字
- * @param page - 页码，从 1 开始
- * @param sort - 排序方式，可选 date / popular / popular-today / popular-week / popular-month
+ * @param options - 搜索选项对象
+ * @param options.query - 搜索关键字，默认 ''
+ * @param options.page - 页码，从 1 开始，默认 1
+ * @param options.sort - 排序方式，默认 date
+ * @returns 搜索结果，含分页信息和画廊列表
  * @see https://nhentai.net/api/v2/docs#/search/search_galleries_api_v2_search_get
  */
 export function searchGallery({
     query = '',
     page = 1,
     sort = SortEnum.Date,
-}: {
-    query?: string
-    page?: number
-    sort?: SortMode
-}): Promise<ISearchResponse> {
+}: SearchGalleryOptions): Promise<ISearchResponse> {
     return request('/search', {
         params: { query, page, sort },
         auth: false,
@@ -69,11 +95,13 @@ export function getGalleryInfo(id: number): Promise<IGallery> {
  * 支持关键字筛选（在已收藏范围内搜索）。
  * 需要登录。
  *
- * @param page - 页码
- * @param q - 搜索关键字（在收藏中搜索）
+ * @param options - 收藏搜索选项对象
+ * @param options.page - 页码，从 1 开始，默认 1
+ * @param options.q - 搜索关键字（在收藏中过滤），默认 ''
+ * @returns 搜索结果，含分页信息和画廊列表
  * @see https://nhentai.net/api/v2/docs#/favorites/get_favorites_api_v2_favorites_get
  */
-export function getFavorites({ page = 1, q = '' }: { page?: number; q?: string }): Promise<ISearchResponse> {
+export function getFavorites({ page = 1, q = '' }: GetFavoritesOptions): Promise<ISearchResponse> {
     return request('/favorites', {
         params: { page, q },
     })
@@ -115,22 +143,21 @@ export function getTagInfo(type: TagType, name: string): Promise<ITags> {
 /**
  * 根据标签 id 获取该标签下的画廊列表。
  *
+ * 注意：该接口不返回 total 字段。
  * 公开接口。
  *
- * @param tag_id - 标签 ID
- * @param page - 页码
- * @param sort - 排序方式
+ * @param options - 标签搜索选项对象
+ * @param options.tag_id - 标签 ID（必填）
+ * @param options.page - 页码，从 1 开始，默认 1
+ * @param options.sort - 排序方式，默认 date
+ * @returns 搜索结果（不含 total 字段）
  * @see https://nhentai.net/api/v2/docs#/galleries/get_galleries_tagged_api_v2_galleries_tagged_get
  */
 export function getTags({
     page = 1,
     sort = SortEnum.Date,
     tag_id,
-}: {
-    page?: number
-    sort?: SortMode
-    tag_id: number
-}): Promise<Omit<ISearchResponse, 'total'> & { total: null }> {
+}: GetTagsOptions): Promise<Omit<ISearchResponse, 'total'> & { total: null }> {
     return request('/galleries/tagged', {
         params: { tag_id, sort, page },
         auth: false,
@@ -162,4 +189,37 @@ export function getPopular(): Promise<[IResult, IResult, IResult, IResult, IResu
  */
 export function getMe(): Promise<IUserMe> {
     return request('/user', { auth: true })
+}
+
+/**
+ * 获取画廊的 ZIP 下载链接。
+ *
+ * POST 请求，返回一个短期有效的下载 URL 和过期时间戳。
+ * 需要在 `expires_at`（unix 秒）之前 fetch 该 url 完成下载。
+ *
+ * **认证**：User Token 或 API Key
+ *
+ * **功能开关**：需管理员启用 `allow_downloads` 特性
+ *
+ * ### 速率限制（ZIP 格式）
+ *
+ * | 维度 | 限制 |
+ * |------|------|
+ * | 每 IP | 10 次 / 5 分钟 |
+ * | 每用户 | 7 次 / 5 分钟 |
+ * | 每 API Key 持有者 | 10 次 / 5 分钟 |
+ *
+ * ### 可能的状态码
+ *
+ * - `200` — 成功，返回 `{ url, expires_at }`
+ * - `422` — 参数校验失败
+ * - `429` — 超过速率限制
+ * - `503` — 功能已被禁用
+ *
+ * @param id - 画廊 ID
+ * @returns 包含 `url`（下载链接）和 `expires_at`（unix 秒级时间戳）的对象
+ * @see https://nhentai.net/api/v2/docs#/galleries/issue_download_url_api_v2_galleries__gallery_id__download_post
+ */
+export function downloadZip(id: number): Promise<{ url: string; expires_at: number }> {
+    return request(`/galleries/${id}/download?format=zip`, { auth: true, method: 'POST' })
 }
