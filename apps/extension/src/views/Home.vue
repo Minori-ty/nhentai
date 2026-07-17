@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { getGallery, getPopular } from '@nhentai/api'
+import { getGallery, getPopular, RequestError } from '@nhentai/api'
 import type { IResult } from '@nhentai/api'
 import { GalleryGrid, PageIndicator } from '@nhentai/components'
 import { ref, onMounted, computed } from 'vue'
@@ -21,6 +21,27 @@ const popularItems = ref<Item[]>([])
 
 const { dm, downloadedIds, downloadProgress } = useDownload()
 
+// 429 重试倒计时
+const retryCountdown = ref(0)
+const RETRY_DELAY = 60
+
+async function requestWithRetry(fn: () => Promise<void>): Promise<void> {
+    try {
+        await fn()
+    } catch (e: unknown) {
+        if (e instanceof RequestError && e.status === 429) {
+            for (let i = RETRY_DELAY; i > 0; i--) {
+                retryCountdown.value = i
+                await new Promise((r) => setTimeout(r, 1000))
+            }
+            retryCountdown.value = 0
+            await fn()
+            return
+        }
+        throw e
+    }
+}
+
 function handleStartDownload(id: number) {
     downloadProgress.value = new Map([...downloadProgress.value, [id, 0]])
     dm.startDownload(id)
@@ -41,12 +62,10 @@ function handleReDownload(id: number) {
 }
 
 async function loadPopular() {
-    try {
+    await requestWithRetry(async () => {
         const items = await getPopular()
         popularItems.value = items.filter(Boolean).map((item) => ({ ...item, _page: 1 }))
-    } catch {
-        // popular 加载失败不影响主列表
-    }
+    })
 }
 
 const isEnd = computed(() => page.value === numPages.value)
@@ -55,15 +74,14 @@ async function loadMore() {
     if (loadingMore.value || isEnd.value) return
     loadingMore.value = true
     const nextPage = page.value + 1
-    try {
+    await requestWithRetry(async () => {
         const data = await getGallery(nextPage)
         results.value.push(...data.result.map((item) => ({ ...item, _page: nextPage })))
         page.value = nextPage
         numPages.value = data.num_pages
         batchCheckDownloaded(data.result.map((item) => item.id))
-    } finally {
-        loadingMore.value = false
-    }
+    })
+    loadingMore.value = false
 }
 
 useInfiniteScroll(loadMore, page)
@@ -73,19 +91,17 @@ onMounted(() => {
     loadPopular()
 })
 
-// 加载完成后检查已下载状态
 async function loadGallery() {
     loading.value = true
     results.value = []
     page.value = 1
-    try {
+    await requestWithRetry(async () => {
         const data = await getGallery(1)
         results.value = data.result.map((item) => ({ ...item, _page: 1 }))
         numPages.value = data.num_pages
         batchCheckDownloaded(data.result.map((item) => item.id))
-    } finally {
-        loading.value = false
-    }
+    })
+    loading.value = false
 }
 </script>
 
@@ -132,4 +148,14 @@ async function loadGallery() {
     </div>
 
     <PageIndicator :num-pages="numPages" :initial-page="1" />
+
+    <!-- 429 重试倒计时 -->
+    <div
+        v-if="retryCountdown > 0"
+        class="fixed right-0 bottom-0 left-0 z-50 flex items-center justify-center gap-2 bg-yellow-600 px-4 py-2 text-sm text-white"
+    >
+        <span>请求过于频繁，</span>
+        <span class="inline-block min-w-[3ch] text-center font-mono font-bold">{{ retryCountdown }}</span>
+        <span>秒后重试</span>
+    </div>
 </template>

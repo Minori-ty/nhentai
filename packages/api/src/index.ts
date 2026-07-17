@@ -1,5 +1,5 @@
 // --- HTTP 客户端 ---
-export { request } from './api/request'
+export { request, RequestError } from './api/request'
 
 // --- API 函数 ---
 export {

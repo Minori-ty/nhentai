@@ -15,13 +15,14 @@ interface RequestOptions extends Omit<RequestInit, 'headers'> {
     auth?: boolean
 }
 
-// 429 退避状态
-let retries = 0
-const MAX_RETRIES = 5
-const BASE_DELAY = 60_000
-
-function delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms))
+export class RequestError extends Error {
+    constructor(
+        message: string,
+        public status: number,
+    ) {
+        super(message)
+        this.name = 'RequestError'
+    }
 }
 
 export async function request<T = unknown>(path: string, options: RequestOptions = {}): Promise<T> {
@@ -42,25 +43,11 @@ export async function request<T = unknown>(path: string, options: RequestOptions
         }
     }
 
-    while (true) {
-        const response = await fetch(url.toString(), { ...init, headers })
+    const response = await fetch(url.toString(), { ...init, headers })
 
-        if (response.ok) {
-            retries = 0
-            return await response.json()
-        }
-
-        if (response.status === 429 && retries < MAX_RETRIES) {
-            retries++
-            // 60s → 120s → 240s → 480s → 960s，加 ±25% 抖动
-            const base = BASE_DELAY * Math.pow(2, retries - 1)
-            const jitter = base * (0.75 + Math.random() * 0.5)
-            await delay(jitter)
-            continue
-        }
-
-        // 重试耗尽或非 429 错误：重置计数器，允许后续滚动重新触发请求
-        retries = 0
-        throw new Error(`Request failed: ${response.status} ${response.statusText}`)
+    if (response.ok) {
+        return (await response.json()) as T
     }
+
+    throw new RequestError(`Request failed: ${response.status} ${response.statusText}`, response.status)
 }

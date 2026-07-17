@@ -19,6 +19,7 @@
         "@nhentai/components": "workspace:*",
         "@nhentai/utils": "workspace:*",
         "@tailwindcss/vite": "^4.3.0",
+        "@tanstack/vue-virtual": "^3.13.32",
         "date-fns": "^4.4.0",
         "dexie": "^4.4.3",
         "fflate": "^0.8.3",
