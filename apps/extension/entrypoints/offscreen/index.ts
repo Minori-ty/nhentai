@@ -3,8 +3,8 @@ import { MsgTypeEnum, MsgTargetEnum } from '@nhentai/api'
 import { Zip, ZipPassThrough } from 'fflate'
 import { createWriteStream } from 'streamsaver'
 
-import type { OffscreenCommand } from '@/types/messages.d'
-import { TaskPool } from '@/utils/AsyncTaskPool'
+import type { OffscreenCommand } from '@/src/types/messages'
+import { TaskPool } from '@/src/utils/AsyncTaskPool'
 
 browser.runtime.onMessage.addListener(async (data: OffscreenCommand) => {
     if (data.target !== MsgTargetEnum.Offscreen) return

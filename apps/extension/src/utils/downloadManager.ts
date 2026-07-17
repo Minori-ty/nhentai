@@ -1,7 +1,7 @@
 import { MsgTypeEnum } from '@nhentai/api'
 
 import MediaService from '../db'
-import type { ContentMessage } from '../types/messages.d'
+import type { ContentMessage } from '../types/messages'
 
 export interface DownloadManager {
     isDownloaded(id: number): Promise<boolean>

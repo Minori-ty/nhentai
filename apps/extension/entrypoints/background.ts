@@ -1,6 +1,6 @@
 import { MsgTypeEnum, MsgTargetEnum } from '@nhentai/api'
 
-import type { BackgroundMessage } from '@/types/messages.d'
+import type { BackgroundMessage } from '@/src/types/messages'
 
 export default defineBackground(() => {
     // 记录哪个 tab 发起了哪个下载请求

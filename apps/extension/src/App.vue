@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { getMe } from '@nhentai/api'
 import { SearchHeader } from '@nhentai/components'
 import { computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
