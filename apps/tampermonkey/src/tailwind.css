@@ -1,2 +1,8 @@
 @import 'tailwindcss';
 @import '@nhentai/components/components.css';
+
+@layer components {
+    #app {
+        @apply min-h-screen bg-[#202a34];
+    }
+}

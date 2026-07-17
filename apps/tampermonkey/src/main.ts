@@ -19,11 +19,9 @@ preconnectImageCDNs()
 
 // 清除 body 内容
 document.body.innerHTML = ''
-document.body.style.backgroundColor = '#202a34'
 
 // 创建挂载点
 const root = document.createElement('div')
-root.className = 'bg-[#202a34] min-h-screen'
 root.id = 'app'
 document.body.appendChild(root)
 

@@ -14,7 +14,6 @@ export default function main() {
     })
     // 创建挂载点
     const root = document.createElement('div')
-    root.className = 'bg-[#202a34] min-h-screen'
     root.id = 'app'
     let removed = false
     const bodyObs = new MutationObserver((list) => {
@@ -32,7 +31,6 @@ export default function main() {
                     removed = true
                     const body = document.createElement('body')
                     document.documentElement.appendChild(body)
-                    document.body.style.backgroundColor = '#202a34'
                     document.body.appendChild(root)
 
                     // 挂载 Vue 应用

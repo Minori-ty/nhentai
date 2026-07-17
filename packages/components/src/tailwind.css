@@ -1,10 +1,12 @@
 @import 'tailwindcss';
 
-html,
-body {
-    @apply bg-[#202a34];
+@theme {
+    --breakpoint-3xl: 120rem;
 }
 
-@theme {
-  --breakpoint-3xl: 120rem;
+@layer base {
+    html,
+    body {
+        @apply bg-[#202a34];
+    }
 }

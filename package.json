@@ -11,7 +11,8 @@
         "format": "oxfmt",
         "prepare": "husky",
         "clean:turbo": "turbo run clean",
-        "clean:dep": "pnpm -r exec rm -rf node_modules dist && rm -rf node_modules dist"
+        "preinstall": "npx only-pnpm",
+        "clear": "rm -rf node_modules .turbo && pnpm -r exec rm -rf node_modules dist .turbo .output"
     },
     "devDependencies": {
         "husky": "^9.1.7",
@@ -19,13 +20,19 @@
         "oxfmt": "^0.57.0",
         "oxlint": "^1.70.0",
         "oxlint-tailwindcss": "^1.3.3",
-        "turbo": "^2.10.4"
+        "turbo": "^2.10.5"
     },
     "lint-staged": {
         "*.{ts,vue,md,json}": [
             "oxfmt",
             "oxlint --fix"
         ]
+    },
+    "engines": {
+        "node": ">=22",
+        "npm": "forbidden, use pnpm",
+        "pnpm": "^10.14.0",
+        "yarn": "forbidden, use pnpm"
     },
     "packageManager": "pnpm@10.14.0"
 }
