@@ -13,7 +13,7 @@ const { name, results, numPages, total, sort, loading, loadingMore, isEnd, setSo
 
 const title = computed(() => {
     const label = TagTypeEnum.label(props.tagType)
-    return `${label}: ${name} (${total.value})`
+    return `${label}: ${name.value} (${total.value})`
 })
 </script>
 

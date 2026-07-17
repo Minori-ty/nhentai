@@ -35,7 +35,7 @@ function handleReDownload(id: number) {
 
 const title = computed(() => {
     const label = TagTypeEnum.label(props.tagType)
-    return `${label}: ${name} (${total.value})`
+    return `${label}: ${name.value} (${total.value})`
 })
 </script>
 

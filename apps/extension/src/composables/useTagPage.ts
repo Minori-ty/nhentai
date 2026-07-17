@@ -1,6 +1,6 @@
 import { getTags, getTagInfo, type IResult } from '@nhentai/api'
 import { SortEnum, type SortMode, type TagType } from '@nhentai/api'
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 import { batchCheckDownloaded } from './useDownload'
@@ -10,7 +10,7 @@ type TagRouteName = 'Tag' | 'Group' | 'Artist' | 'Character' | 'Language' | 'Cat
 
 export function useTagPage(type: TagType) {
     const route = useRoute<TagRouteName>()
-    const name = route.params.name
+    const name = computed(() => route.params.name)
 
     const results = ref<(IResult & { _page: number })[]>([])
     const page = ref(1)
@@ -29,7 +29,7 @@ export function useTagPage(type: TagType) {
         results.value = []
         page.value = 1
         try {
-            const info = await getTagInfo(type, name)
+            const info = await getTagInfo(type, name.value)
             tagId = info.id
             total.value = info.count
             const data = await getTags({ tag_id: tagId, page: 1, sort: sort.value })
@@ -74,9 +74,14 @@ export function useTagPage(type: TagType) {
 
     useInfiniteScroll(loadMore, page)
 
-    onMounted(() => {
-        loadFirst()
-    })
+    // 监听路由参数和 tagType 变化，支持 KeepAlive 下切换不同 tag
+    watch(
+        [() => route.params.name, () => type],
+        () => {
+            loadFirst()
+        },
+        { immediate: true },
+    )
 
     return {
         name,
