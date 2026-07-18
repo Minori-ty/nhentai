@@ -122,7 +122,7 @@ watch(
     <template v-else-if="gallery">
         <div
             :class="[
-                'mx-auto mt-4 mb-6 flex max-w-277.5 rounded-xl bg-[#2A3744]',
+                'mx-auto mt-4 mb-6 flex max-w-[1110px] rounded-xl bg-[#2A3744]',
                 'flex-col items-center px-4 py-6 md:flex-row md:gap-8 md:px-6 md:py-8',
             ]"
         >

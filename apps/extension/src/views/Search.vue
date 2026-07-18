@@ -8,6 +8,7 @@ import { useRouter, useRoute } from 'vue-router'
 import DownloadOverlay from '../components/DownloadOverlay.vue'
 import { useDownload, batchCheckDownloaded } from '../composables/useDownload'
 import { useInfiniteScroll } from '../composables/useInfiniteScroll'
+import { useRetryCountdown } from '../composables/useRetryCountdown'
 import { searchBus, triggerSearch } from '../composables/useSearchBus'
 
 type Item = IResult & { _page: number }
@@ -25,6 +26,7 @@ const loading = ref(false)
 const loadingMore = ref(false)
 
 const { dm, downloadedIds, downloadProgress } = useDownload()
+const { retryCountdown, requestWithRetry } = useRetryCountdown()
 
 function handleStartDownload(id: number) {
     downloadProgress.value = new Map([...downloadProgress.value, [id, 0]])
@@ -52,7 +54,7 @@ async function doSearch() {
     results.value = []
     page.value = 1
     try {
-        const data = await searchGallery({ query: query.value, page: 1, sort: sort.value })
+        const data = await requestWithRetry(() => searchGallery({ query: query.value, page: 1, sort: sort.value }))
         results.value = data.result.map((item) => ({ ...item, _page: 1 }))
         numPages.value = data.num_pages
         total.value = data.total
@@ -67,7 +69,9 @@ async function loadMore() {
     loadingMore.value = true
     const nextPage = page.value + 1
     try {
-        const data = await searchGallery({ query: query.value, page: nextPage, sort: sort.value })
+        const data = await requestWithRetry(() =>
+            searchGallery({ query: query.value, page: nextPage, sort: sort.value }),
+        )
         results.value.push(...data.result.map((item) => ({ ...item, _page: nextPage })))
         page.value = nextPage
         numPages.value = data.num_pages
@@ -133,4 +137,14 @@ onMounted(() => {
     </GalleryGrid>
 
     <PageIndicator :num-pages="numPages" />
+
+    <!-- 429 重试倒计时 -->
+    <div
+        v-if="retryCountdown > 0"
+        class="fixed right-0 bottom-0 left-0 z-50 flex items-center justify-center gap-2 bg-yellow-600 px-4 py-2 text-sm text-white"
+    >
+        <span>请求过于频繁，</span>
+        <span class="inline-block min-w-[3ch] text-center font-mono font-bold">{{ retryCountdown }}</span>
+        <span>秒后重试</span>
+    </div>
 </template>

@@ -5,6 +5,7 @@ import { useRoute } from 'vue-router'
 
 import { batchCheckDownloaded } from './useDownload'
 import { useInfiniteScroll } from './useInfiniteScroll'
+import { useRetryCountdown } from './useRetryCountdown'
 
 type TagRouteName = 'Tag' | 'Group' | 'Artist' | 'Character' | 'Language' | 'Category'
 
@@ -22,6 +23,8 @@ export function useTagPage(type: TagType) {
 
     const isEnd = computed(() => page.value === numPages.value)
 
+    const { retryCountdown, requestWithRetry } = useRetryCountdown()
+
     let tagId = 0
 
     async function loadFirst() {
@@ -29,10 +32,10 @@ export function useTagPage(type: TagType) {
         results.value = []
         page.value = 1
         try {
-            const info = await getTagInfo(type, name.value)
+            const info = await requestWithRetry(() => getTagInfo(type, name.value))
             tagId = info.id
             total.value = info.count
-            const data = await getTags({ tag_id: tagId, page: 1, sort: sort.value })
+            const data = await requestWithRetry(() => getTags({ tag_id: tagId, page: 1, sort: sort.value }))
             results.value = data.result.map((item) => ({ ...item, _page: 1 }))
             numPages.value = data.num_pages
             batchCheckDownloaded(data.result.map((item) => item.id))
@@ -46,7 +49,7 @@ export function useTagPage(type: TagType) {
         loadingMore.value = true
         const nextPage = page.value + 1
         try {
-            const data = await getTags({ tag_id: tagId, page: nextPage, sort: sort.value })
+            const data = await requestWithRetry(() => getTags({ tag_id: tagId, page: nextPage, sort: sort.value }))
             results.value.push(...data.result.map((item) => ({ ...item, _page: nextPage })))
             page.value = nextPage
             numPages.value = data.num_pages
@@ -63,7 +66,7 @@ export function useTagPage(type: TagType) {
         results.value = []
         page.value = 1
         try {
-            const data = await getTags({ tag_id: tagId, page: 1, sort: sort.value })
+            const data = await requestWithRetry(() => getTags({ tag_id: tagId, page: 1, sort: sort.value }))
             results.value = data.result.map((item) => ({ ...item, _page: 1 }))
             numPages.value = data.num_pages
             batchCheckDownloaded(data.result.map((item) => item.id))
@@ -93,6 +96,7 @@ export function useTagPage(type: TagType) {
         loading,
         loadingMore,
         isEnd,
+        retryCountdown,
         setSort,
     }
 }

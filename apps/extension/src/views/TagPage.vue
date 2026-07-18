@@ -11,7 +11,9 @@ const props = defineProps<{
     tagType: TagType
 }>()
 
-const { name, results, numPages, total, sort, loading, loadingMore, isEnd, setSort } = useTagPage(props.tagType)
+const { name, results, numPages, total, sort, loading, loadingMore, isEnd, retryCountdown, setSort } = useTagPage(
+    props.tagType,
+)
 const { dm, downloadedIds, downloadProgress } = useDownload()
 
 function handleStartDownload(id: number) {
@@ -64,4 +66,14 @@ const title = computed(() => {
     </GalleryGrid>
 
     <PageIndicator :num-pages="numPages" :initial-page="1" />
+
+    <!-- 429 重试倒计时 -->
+    <div
+        v-if="retryCountdown > 0"
+        class="fixed right-0 bottom-0 left-0 z-50 flex items-center justify-center gap-2 bg-yellow-600 px-4 py-2 text-sm text-white"
+    >
+        <span>请求过于频繁，</span>
+        <span class="inline-block min-w-[3ch] text-center font-mono font-bold">{{ retryCountdown }}</span>
+        <span>秒后重试</span>
+    </div>
 </template>

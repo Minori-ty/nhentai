@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { getGallery, getPopular, RequestError } from '@nhentai/api'
+import { getGallery, getPopular } from '@nhentai/api'
 import type { IResult } from '@nhentai/api'
 import { GalleryGrid, PageIndicator } from '@nhentai/components'
 import { ref, onMounted, computed } from 'vue'
@@ -7,6 +7,7 @@ import { ref, onMounted, computed } from 'vue'
 import DownloadOverlay from '../components/DownloadOverlay.vue'
 import { useDownload, batchCheckDownloaded } from '../composables/useDownload'
 import { useInfiniteScroll } from '../composables/useInfiniteScroll'
+import { useRetryCountdown } from '../composables/useRetryCountdown'
 
 type Item = IResult & { _page: number }
 
@@ -22,25 +23,7 @@ const popularItems = ref<Item[]>([])
 const { dm, downloadedIds, downloadProgress } = useDownload()
 
 // 429 重试倒计时
-const retryCountdown = ref(0)
-const RETRY_DELAY = 60
-
-async function requestWithRetry(fn: () => Promise<void>): Promise<void> {
-    try {
-        await fn()
-    } catch (e: unknown) {
-        if (e instanceof RequestError && e.status === 429) {
-            for (let i = RETRY_DELAY; i > 0; i--) {
-                retryCountdown.value = i
-                await new Promise((r) => setTimeout(r, 1000))
-            }
-            retryCountdown.value = 0
-            await fn()
-            return
-        }
-        throw e
-    }
-}
+const { retryCountdown, requestWithRetry } = useRetryCountdown()
 
 function handleStartDownload(id: number) {
     downloadProgress.value = new Map([...downloadProgress.value, [id, 0]])
