@@ -53,7 +53,6 @@ export function searchGallery({
 }: SearchGalleryOptions): Promise<ISearchResponse> {
     return request('/search', {
         params: { query, page, sort },
-        auth: false,
     })
 }
 
@@ -69,7 +68,7 @@ export function searchGallery({
 export function getGallery(page: number): Promise<ISearchResponse> {
     return request('/galleries', {
         params: { page },
-        auth: false,
+        auth: true,
     })
 }
 
@@ -104,6 +103,7 @@ export function getGalleryInfo(id: number): Promise<IGallery> {
 export function getFavorites({ page = 1, q = '' }: GetFavoritesOptions): Promise<ISearchResponse> {
     return request('/favorites', {
         params: { page, q },
+        auth: true,
     })
 }
 
@@ -121,6 +121,7 @@ export function getFavorites({ page = 1, q = '' }: GetFavoritesOptions): Promise
 export function favoriteGallery(id: number, favorited: boolean): Promise<IFavoriteResponse> {
     return request(`/galleries/${id}/favorite`, {
         method: favorited ? 'POST' : 'DELETE',
+        auth: true,
     })
 }
 
@@ -135,9 +136,7 @@ export function favoriteGallery(id: number, favorited: boolean): Promise<IFavori
  * @see https://nhentai.net/api/v2/docs#/tags/get_tag_info_api_v2_tags__tag_type___slug__get
  */
 export function getTagInfo(type: TagType, name: string): Promise<ITags> {
-    return request(`/tags/${type}/${name}`, {
-        auth: false,
-    })
+    return request(`/tags/${type}/${name}`, {})
 }
 
 /**
@@ -160,7 +159,6 @@ export function getTags({
 }: GetTagsOptions): Promise<Omit<ISearchResponse, 'total'> & { total: null }> {
     return request('/galleries/tagged', {
         params: { tag_id, sort, page },
-        auth: false,
     })
 }
 
@@ -172,9 +170,7 @@ export function getTags({
  * @see https://nhentai.net/api/v2/docs#/galleries/get_popular_galleries_api_v2_galleries_popular_get
  */
 export function getPopular(): Promise<[IResult, IResult, IResult, IResult, IResult]> {
-    return request('/galleries/popular', {
-        auth: false,
-    })
+    return request('/galleries/popular')
 }
 
 /**

@@ -1,4 +1,4 @@
-import { getMe } from '@nhentai/api'
+import { getMe, RequestError } from '@nhentai/api'
 import { preconnectImageCDNs } from '@nhentai/utils'
 import { createApp } from 'vue'
 
@@ -9,10 +9,16 @@ import router from './router/router'
 import './tailwind.css'
 
 // 获取用户信息
-getMe().then((me) => {
-    setUserAvatar(`https://i1.nhentai.net/${me.avatar_url}`)
-    setUserName(me.username)
-})
+getMe()
+    .then((me) => {
+        setUserAvatar(`https://i1.nhentai.net/${me.avatar_url}`)
+        setUserName(me.username)
+    })
+    .catch((err) => {
+        if (err instanceof RequestError && err.status === 401) {
+            window.location.href = 'https://nhentai.net/login'
+        }
+    })
 
 // CDN 预连接
 preconnectImageCDNs()

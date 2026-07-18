@@ -26,7 +26,7 @@ export class RequestError extends Error {
 }
 
 export async function request<T = unknown>(path: string, options: RequestOptions = {}): Promise<T> {
-    const { params, auth = true, headers: extraHeaders, ...init } = options
+    const { params, auth = false, headers: extraHeaders, ...init } = options
 
     const url = new URL(BASE_URL + path)
     if (params) {
