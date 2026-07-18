@@ -10,6 +10,10 @@ import TagPage from '../views/TagPage.vue'
 const router = createRouter({
     history: createWebHashHistory(),
     scrollBehavior(to, _from, savedPosition) {
+        // 组件自己管理滚动，router 不干涉
+        if (to.meta.scrollSelf) {
+            return false
+        }
         // 需要保留滚动的页面，后退时恢复位置
         if (to.meta.scrollKeep && savedPosition) {
             return savedPosition
@@ -34,11 +38,13 @@ const router = createRouter({
             path: '/detail/:id',
             name: 'Detail',
             component: Detail,
+            meta: { scrollSelf: true },
         },
         {
             path: '/single/:id',
             name: 'Single',
             component: Single,
+            meta: { scrollSelf: true },
         },
         {
             path: '/favorites',

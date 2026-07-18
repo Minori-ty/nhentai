@@ -60,7 +60,7 @@ onMounted(() => {
         @favorites="goFavorites"
     />
     <router-view v-slot="{ Component }">
-        <KeepAlive>
+        <KeepAlive :exclude="['Single']">
             <component :is="Component" />
         </KeepAlive>
     </router-view>

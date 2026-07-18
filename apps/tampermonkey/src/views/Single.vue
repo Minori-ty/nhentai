@@ -110,3 +110,9 @@ onMounted(async () => {
         </div>
     </template>
 </template>
+
+<style scoped>
+[data-page] {
+    scroll-margin-top: 64px;
+}
+</style>

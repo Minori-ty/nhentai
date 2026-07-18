@@ -170,12 +170,9 @@ watch(
 
     <!-- Detail 内容 -->
     <template v-else-if="gallery">
-        <!-- ===== 上半部分：移动端上下布局 / 桌面端左右布局 ===== -->
+        <!-- ===== 上半部分：移动端上下布局 / lg+左右布局 ===== -->
         <div
-            :class="[
-                'mx-auto mt-4 mb-6 flex max-w-[1110px] rounded-xl bg-[#2A3744]',
-                'items-center px-4 py-6 md:flex-row md:gap-8 md:px-6 md:py-8',
-            ]"
+            class="detail-top mx-auto mt-4 mb-6 flex max-w-[1110px] flex-col items-center rounded-xl bg-[#2A3744] px-4 py-6"
         >
             <!-- 左边（移动端：上方）封面 -->
             <div class="shrink-0">
@@ -325,3 +322,14 @@ watch(
         @confirm="onRemoveConfirm"
     />
 </template>
+
+<style scoped>
+@media (width >= 64rem) {
+    .detail-top {
+        flex-direction: row;
+        gap: 2rem;
+        padding-inline: 1.5rem;
+        padding-block: 2rem;
+    }
+}
+</style>
