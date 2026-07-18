@@ -11,6 +11,7 @@
         "clean": "rm -rf dist"
     },
     "dependencies": {
+        "@lucide/vue": "^1.25.0",
         "@nhentai/api": "workspace:*",
         "@nhentai/components": "workspace:*",
         "@nhentai/utils": "workspace:*",

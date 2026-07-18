@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { Heart } from '@lucide/vue'
 import { getGalleryInfo, favoriteGallery } from '@nhentai/api'
 import type { IGallery, Tag } from '@nhentai/api'
 import { TagTypeEnum } from '@nhentai/api'
@@ -227,8 +228,11 @@ watch(
                 <div class="mt-2 flex items-center gap-3 self-start">
                     <!-- Favorite 按钮 -->
                     <BaseBtn variant="danger" size="semibold" :disabled="favoriting" @click="toggleFavorite">
-                        {{ gallery.is_favorited ? '♥ Unfavorite' : '♡ Favorite' }}
-                        ({{ (gallery.num_favorites ?? 0).toLocaleString() }})
+                        <span class="inline-flex items-center gap-1">
+                            <Heart :fill="gallery.is_favorited ? 'currentColor' : 'none'" class="h-5 w-5" />
+                            {{ gallery.is_favorited ? 'Unfavorite' : 'Favorite' }}
+                            ({{ (gallery.num_favorites ?? 0).toLocaleString() }})
+                        </span>
                     </BaseBtn>
 
                     <!-- 下载按钮 -->

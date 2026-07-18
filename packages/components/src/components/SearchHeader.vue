@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { Heart } from '@lucide/vue'
 import { ref, onMounted, onUnmounted, useTemplateRef, watch } from 'vue'
 
 import logoSvg from '../assets/logo.svg'
@@ -144,10 +145,12 @@ function doSearch() {
             </button>
 
             <!-- 大屏：直接显示 Favorites + 头像 + 用户名 -->
-            <div class="shrink-0 items-center gap-6 max-lg:hidden lg:flex">
-                <BaseBtn variant="primary-outline" class="whitespace-nowrap" @click="goFavorites">
-                    ♥ Favorites
-                </BaseBtn>
+            <div class="ml-10 shrink-0 items-center gap-4 max-lg:hidden lg:flex">
+                <button class="cursor-pointer text-gray-300 transition-colors hover:text-pink-400" @click="goFavorites">
+                    <span class="inline-flex items-center gap-1">
+                        <Heart class="h-5 w-5" fill="currentColor" /> Favorites
+                    </span>
+                </button>
                 <img
                     v-if="userAvatar"
                     :src="avatarSrc"
@@ -177,9 +180,14 @@ function doSearch() {
                     class="absolute top-full right-0 mt-2 flex min-w-44 flex-col gap-3 rounded-xl border border-gray-700 bg-[#2A3744] p-4 shadow-2xl"
                 >
                     <!-- Favorites 按钮 -->
-                    <BaseBtn variant="primary-outline" class="w-full whitespace-nowrap" @click="goFavorites">
-                        ♥ Favorites
-                    </BaseBtn>
+                    <button
+                        class="flex w-full cursor-pointer items-center gap-2 rounded-lg px-4 py-2.5 text-gray-300 transition-colors hover:bg-gray-700 hover:text-pink-400"
+                        @click="goFavorites"
+                    >
+                        <span class="inline-flex items-center gap-1">
+                            <Heart class="h-5 w-5" fill="currentColor" /> Favorites
+                        </span>
+                    </button>
                     <!-- 头像 + 用户名（独占一行） -->
                     <div v-if="userAvatar || userName" class="flex items-center gap-2">
                         <img
