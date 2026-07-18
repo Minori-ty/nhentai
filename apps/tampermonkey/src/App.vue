@@ -50,7 +50,6 @@ onMounted(() => {
         :query="searchQuery"
         :user-name="userName"
         :user-avatar="userAvatar"
-        :is-mobile="true"
         @search="onSearch"
         @favorites="goFavorites"
     />

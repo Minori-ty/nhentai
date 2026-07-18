@@ -8,7 +8,7 @@ import BaseBtn from './BaseBtn.vue'
  * 顶部搜索栏组件。
  *
  * 包含 logo、搜索输入框、搜索按钮、Favorites 入口和用户头像/名称。
- * 移动端／桌面端自适应布局：桌面端按钮+用户信息直接展示，移动端折叠为汉堡菜单。
+ * 响应式布局：≥1024px(lg) 时按钮+用户信息直接展示，<1024px 时折叠为汉堡菜单。
  *
  * @event search - 用户触发搜索时发出，参数为搜索关键字
  * @event favorites - 用户点击 Favorites 时发出
@@ -21,14 +21,11 @@ const props = withDefaults(
         userName?: string
         /** 当前登录用户头像 URL，为空时不显示 */
         userAvatar?: string
-        /** 是否启用移动端布局（图标按钮 + 汉堡菜单），默认 false */
-        isMobile?: boolean
     }>(),
     {
         query: '',
         userName: '',
         userAvatar: '',
-        isMobile: false,
     },
 )
 
@@ -88,6 +85,13 @@ function closeMenu(e: MouseEvent) {
     }
 }
 
+/** 窗口拉伸至大屏时自动关闭移动端弹窗 */
+function onResize() {
+    if (window.innerWidth >= 1024) {
+        menuOpen.value = false
+    }
+}
+
 function goFavorites() {
     inputQuery.value = ''
     menuOpen.value = false
@@ -96,10 +100,12 @@ function goFavorites() {
 
 onMounted(() => {
     document.addEventListener('click', closeMenu)
+    window.addEventListener('resize', onResize)
 })
 
 onUnmounted(() => {
     document.removeEventListener('click', closeMenu)
+    window.removeEventListener('resize', onResize)
 })
 
 function doSearch() {
@@ -118,17 +124,16 @@ function doSearch() {
                 v-model="inputQuery"
                 type="text"
                 placeholder="搜索本子..."
-                :class="[
-                    'flex-1 rounded-lg border! border-gray-700! bg-gray-800! px-4 py-2 text-white! placeholder-gray-400 transition-all outline-none focus:border-indigo-400! focus:ring-2! focus:ring-indigo-500/50!',
-                    isMobile ? 'w-38' : '',
-                ]"
+                class="w-38 flex-1 rounded-lg border! border-gray-700! bg-gray-800! px-4 py-2 text-white! placeholder-gray-400 transition-all outline-none focus:border-indigo-400! focus:ring-2! focus:ring-indigo-500/50! lg:w-auto"
                 @keyup.enter="doSearch"
             />
-            <!-- 桌面端：文字按钮；移动端：图标按钮省空间 -->
-            <BaseBtn v-if="!isMobile" variant="primary" class="whitespace-nowrap" @click="doSearch">搜索</BaseBtn>
+            <!-- 大屏：文字搜索按钮 -->
+            <BaseBtn variant="primary" class="whitespace-nowrap max-lg:hidden lg:inline-flex" @click="doSearch"
+                >搜索</BaseBtn
+            >
+            <!-- 小屏：图标搜索按钮 -->
             <button
-                v-else
-                class="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-transparent bg-indigo-500 text-white transition-colors hover:bg-indigo-600"
+                class="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-transparent bg-indigo-500 text-white transition-colors hover:bg-indigo-600 lg:hidden"
                 @click="doSearch"
             >
                 <svg class="h-5 w-5 fill-current" viewBox="0 0 512 512">
@@ -138,8 +143,8 @@ function doSearch() {
                 </svg>
             </button>
 
-            <!-- 桌面端：直接显示 Favorites + 头像 + 用户名 -->
-            <template v-if="!isMobile">
+            <!-- 大屏：直接显示 Favorites + 头像 + 用户名 -->
+            <div class="shrink-0 items-center gap-6 max-lg:hidden lg:flex">
                 <BaseBtn variant="primary-outline" class="whitespace-nowrap" @click="goFavorites">
                     ♥ Favorites
                 </BaseBtn>
@@ -150,11 +155,11 @@ function doSearch() {
                     class="h-10 w-10 shrink-0 rounded-full border-2 border-gray-600 transition-colors hover:border-gray-400"
                     @error="onAvatarError"
                 />
-                <span v-if="userName" class="ml-1 text-sm font-medium text-gray-300">{{ userName }}</span>
-            </template>
+                <span v-if="userName" class="text-sm font-medium text-gray-300">{{ userName }}</span>
+            </div>
 
-            <!-- 移动端：汉堡菜单按钮 -->
-            <div v-else ref="menuRef" class="relative shrink-0">
+            <!-- 小屏：汉堡菜单按钮 -->
+            <div ref="menuRef" class="relative shrink-0 lg:hidden">
                 <button
                     class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-gray-300 transition-colors hover:bg-gray-700 hover:text-white"
                     @click.stop="toggleMenu"
