@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import { getFavorites } from '@nhentai/api'
 import type { IResult } from '@nhentai/api'
-import { BaseBtn, GalleryGrid, PageIndicator } from '@nhentai/components'
+import { BaseBtn, GalleryGrid, PageIndicator, RetryCountdownBar } from '@nhentai/components'
 import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 import { useInfiniteScroll } from '../composables/useInfiniteScroll'
+import { useRetryCountdown } from '../composables/useRetryCountdown'
 
 type Item = IResult & { _page: number }
 
@@ -41,12 +42,14 @@ const total = ref(0)
 
 const isEnd = computed(() => page.value === numPages.value)
 
+const { retryCountdown, requestWithRetry } = useRetryCountdown()
+
 async function loadFavorites() {
     loading.value = true
     results.value = []
     page.value = initialPage
     try {
-        const data = await getFavorites({ page: initialPage, q: query.value })
+        const data = await requestWithRetry(() => getFavorites({ page: initialPage, q: query.value }))
         results.value = data.result.map((item) => ({ ...item, _page: initialPage }))
         numPages.value = data.num_pages
         total.value = data.total
@@ -60,7 +63,7 @@ async function loadMore() {
     loadingMore.value = true
     const nextPage = page.value + 1
     try {
-        const data = await getFavorites({ page: nextPage, q: query.value })
+        const data = await requestWithRetry(() => getFavorites({ page: nextPage, q: query.value }))
         results.value.push(...data.result.map((item) => ({ ...item, _page: nextPage })))
         page.value = nextPage
         numPages.value = data.num_pages
@@ -116,4 +119,6 @@ onMounted(() => {
 
     <!-- 页码指示器 -->
     <PageIndicator :num-pages="numPages" :initial-page="initialPage" :is-mobile="true" />
+
+    <RetryCountdownBar :retry-countdown="retryCountdown" />
 </template>

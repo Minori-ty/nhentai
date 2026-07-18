@@ -18,6 +18,8 @@ export { default as PageLoader } from './components/PageLoader.vue'
 export { default as SearchHeader } from './components/SearchHeader.vue'
 /** 排序栏组件，支持 Recent / Today / Week / All Time 四种排序 */
 export { default as SortBar } from './components/SortBar.vue'
+/** 429 限流重试倒计时条，页面底部 fixed 显示 */
+export { default as RetryCountdownBar } from './components/RetryCountdownBar.vue'
 
 // --- 枚举 ---
 /** 语言标签枚举（中文 / 日文 / 英文），含对应 SVG icon */

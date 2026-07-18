@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import { searchGallery } from '@nhentai/api'
 import type { IResult, SortMode } from '@nhentai/api'
-import { GalleryGrid, PageIndicator, SortBar } from '@nhentai/components'
+import { GalleryGrid, PageIndicator, SortBar, RetryCountdownBar } from '@nhentai/components'
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 import { useInfiniteScroll } from '../composables/useInfiniteScroll'
+import { useRetryCountdown } from '../composables/useRetryCountdown'
 import { searchBus, triggerSearch } from '../composables/useSearchBus'
 
 type Item = IResult & { _page: number }
@@ -22,6 +23,8 @@ const sort = ref<SortMode>('date')
 const loading = ref(false)
 const loadingMore = ref(false)
 
+const { retryCountdown, requestWithRetry } = useRetryCountdown()
+
 const isEnd = computed(() => page.value === numPages.value)
 
 async function doSearch() {
@@ -29,7 +32,7 @@ async function doSearch() {
     results.value = []
     page.value = 1
     try {
-        const data = await searchGallery({ query: query.value, page: 1, sort: sort.value })
+        const data = await requestWithRetry(() => searchGallery({ query: query.value, page: 1, sort: sort.value }))
         results.value = data.result.map((item) => ({ ...item, _page: 1 }))
         numPages.value = data.num_pages
         total.value = data.total
@@ -43,7 +46,9 @@ async function loadMore() {
     loadingMore.value = true
     const nextPage = page.value + 1
     try {
-        const data = await searchGallery({ query: query.value, page: nextPage, sort: sort.value })
+        const data = await requestWithRetry(() =>
+            searchGallery({ query: query.value, page: nextPage, sort: sort.value }),
+        )
         results.value.push(...data.result.map((item) => ({ ...item, _page: nextPage })))
         page.value = nextPage
         numPages.value = data.num_pages
@@ -91,4 +96,6 @@ onMounted(() => {
     <GalleryGrid :items="results" :loading="loading" :loading-more="loadingMore" :is-end="isEnd" />
 
     <PageIndicator :num-pages="numPages" :is-mobile="true" />
+
+    <RetryCountdownBar :retry-countdown="retryCountdown" />
 </template>

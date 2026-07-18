@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { TagTypeEnum, type TagType } from '@nhentai/api'
-import { GalleryGrid, PageIndicator, SortBar } from '@nhentai/components'
+import { GalleryGrid, PageIndicator, SortBar, RetryCountdownBar } from '@nhentai/components'
 import { computed } from 'vue'
 
 import { useTagPage } from '../composables/useTagPage'
@@ -9,7 +9,9 @@ const props = defineProps<{
     tagType: TagType
 }>()
 
-const { name, results, numPages, total, sort, loading, loadingMore, isEnd, setSort } = useTagPage(props.tagType)
+const { name, results, numPages, total, sort, loading, loadingMore, isEnd, retryCountdown, setSort } = useTagPage(
+    props.tagType,
+)
 
 const title = computed(() => {
     const label = TagTypeEnum.label(props.tagType)
@@ -25,4 +27,6 @@ const title = computed(() => {
     <GalleryGrid :items="results" :loading="loading" :loading-more="loadingMore" :is-end="isEnd" />
 
     <PageIndicator :num-pages="numPages" :initial-page="1" :is-mobile="true" />
+
+    <RetryCountdownBar :retry-countdown="retryCountdown" />
 </template>
