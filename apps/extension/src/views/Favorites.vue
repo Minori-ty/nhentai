@@ -139,7 +139,6 @@ onMounted(() => {
         :loading-more="loadingMore"
         :is-end="isEnd"
         empty-text="No favorites found"
-        :open-in-new-tab="true"
     >
         <template #overlay="{ item }">
             <DownloadOverlay

@@ -46,13 +46,7 @@ const title = computed(() => {
 
     <SortBar :total="total" :sort="sort" @update:sort="setSort" />
 
-    <GalleryGrid
-        :items="results"
-        :loading="loading"
-        :loading-more="loadingMore"
-        :is-end="isEnd"
-        :open-in-new-tab="true"
-    >
+    <GalleryGrid :items="results" :loading="loading" :loading-more="loadingMore" :is-end="isEnd">
         <template #overlay="{ item }">
             <DownloadOverlay
                 :item="item"

@@ -94,7 +94,7 @@ async function loadGallery() {
         <div class="mx-auto w-fit px-4 pt-6">
             <h2 class="mb-4 text-xl font-bold text-white">Popular Now</h2>
         </div>
-        <GalleryGrid :items="popularItems" :is-end="true" compact :open-in-new-tab="true">
+        <GalleryGrid :items="popularItems" :is-end="true" compact>
             <template #overlay="{ item }">
                 <DownloadOverlay
                     :item="item"
@@ -110,13 +110,7 @@ async function loadGallery() {
 
     <!-- 主列表 -->
     <div :class="popularItems.length > 0 ? 'mt-8' : ''">
-        <GalleryGrid
-            :items="results"
-            :loading="loading"
-            :loading-more="loadingMore"
-            :is-end="isEnd"
-            :open-in-new-tab="true"
-        >
+        <GalleryGrid :items="results" :loading="loading" :loading-more="loadingMore" :is-end="isEnd">
             <template #overlay="{ item }">
                 <DownloadOverlay
                     :item="item"

@@ -14,27 +14,20 @@ export interface GalleryItem extends IResult {
     _page: number
 }
 
-const props = withDefaults(
-    defineProps<{
-        /** 画廊条目列表，每项需包含 `_page` 字段 */
-        items: GalleryItem[]
-        /** 是否处于初始加载状态（显示 PageLoader） */
-        loading?: boolean
-        /** 是否正在加载更多数据（底部显示 LoadingSpinner） */
-        loadingMore?: boolean
-        /** 是否已到最后一页（显示 "已经没有了"） */
-        isEnd?: boolean
-        /** 空结果时的提示文字，默认 "No results found" */
-        emptyText?: string
-        /** 紧凑模式：不显示初始加载器、底部加载提示、无更多提示和空提示 */
-        compact?: boolean
-        /** 点击画廊时是否在新标签打开，默认 false */
-        openInNewTab?: boolean
-    }>(),
-    {
-        openInNewTab: false,
-    },
-)
+const props = defineProps<{
+    /** 画廊条目列表，每项需包含 `_page` 字段 */
+    items: GalleryItem[]
+    /** 是否处于初始加载状态（显示 PageLoader） */
+    loading?: boolean
+    /** 是否正在加载更多数据（底部显示 LoadingSpinner） */
+    loadingMore?: boolean
+    /** 是否已到最后一页（显示 "已经没有了"） */
+    isEnd?: boolean
+    /** 空结果时的提示文字，默认 "No results found" */
+    emptyText?: string
+    /** 紧凑模式：不显示初始加载器、底部加载提示、无更多提示和空提示 */
+    compact?: boolean
+}>()
 
 /**
  * 根据 tag_ids 匹配语言图标。
@@ -68,7 +61,6 @@ function getThumbnailUrl(thumbnail: string): string {
                 :data-page="item._page"
                 :to="{ name: 'Detail', params: { id: item.id } }"
                 class="group block text-current"
-                :target="openInNewTab ? '_blank' : undefined"
             >
                 <!-- 封面图 -->
                 <div :class="['relative mx-auto max-h-80 overflow-hidden rounded-lg bg-gray-800', 'w-full md:w-56.25']">
