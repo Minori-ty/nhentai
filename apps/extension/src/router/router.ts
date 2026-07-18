@@ -50,42 +50,49 @@ const router = createRouter({
             path: '/favorites',
             name: 'Favorites',
             component: Favorites,
+            meta: { scrollKeep: true }, // 标记本页保留滚动位置
         },
         {
             path: '/tag/:name',
             name: 'Tag',
             component: TagPage,
             props: { tagType: 'tag' },
+            meta: { scrollKeep: true }, // 标记本页保留滚动位置
         },
         {
             path: '/group/:name',
             name: 'Group',
             component: TagPage,
             props: { tagType: 'group' },
+            meta: { scrollKeep: true }, // 标记本页保留滚动位置
         },
         {
             path: '/artist/:name',
             name: 'Artist',
             component: TagPage,
             props: { tagType: 'artist' },
+            meta: { scrollKeep: true }, // 标记本页保留滚动位置
         },
         {
             path: '/character/:name',
             name: 'Character',
             component: TagPage,
             props: { tagType: 'character' },
+            meta: { scrollKeep: true }, // 标记本页保留滚动位置
         },
         {
             path: '/language/:name',
             name: 'Language',
             component: TagPage,
             props: { tagType: 'language' },
+            meta: { scrollKeep: true }, // 标记本页保留滚动位置
         },
         {
             path: '/category/:name',
             name: 'Category',
             component: TagPage,
             props: { tagType: 'category' },
+            meta: { scrollKeep: true }, // 标记本页保留滚动位置
         },
     ],
 })
