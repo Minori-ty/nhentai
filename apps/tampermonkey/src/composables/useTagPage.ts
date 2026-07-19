@@ -76,8 +76,8 @@ export function useTagPage(type: TagType) {
     // 监听路由参数和 tagType 变化，支持 KeepAlive 下切换不同 tag
     watch(
         [() => route.params.name, () => type],
-        () => {
-            loadFirst()
+        ([name]) => {
+            if (name) loadFirst()
         },
         { immediate: true },
     )

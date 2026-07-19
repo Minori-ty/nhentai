@@ -11,7 +11,14 @@ export default defineConfig({
             '@': resolve(__dirname, 'src'),
         },
     },
-    plugins: [vue(), tailwindcss(), dts({ insertTypesEntry: true })],
+    plugins: [
+        vue(),
+        tailwindcss(),
+        dts({
+            insertTypesEntry: true,
+            cleanVueFileName: true, // Remove .vue extension from declaration file names
+        }),
+    ],
     build: {
         lib: {
             entry: {
