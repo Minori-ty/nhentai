@@ -10,6 +10,7 @@ export default defineContentScript({
         ...Array.from({ length: 4 }, (_, i) => `https://i${i + 1}.nhentai.net/*`),
         'https://nhentai.net/login',
         'https://nhentai.net/api/v2/docs/*',
+        'https://nhentai.net/user/settings/*',
     ],
     main,
 })

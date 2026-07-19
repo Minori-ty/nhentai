@@ -34,7 +34,12 @@ export default defineConfig({
                 name: 'nhentai Enhanced',
                 description: 'Enhanced mobile-friendly UI for nhentai.net',
                 match: ['https://nhentai.net/*'],
-                exclude: ['*://i*.nhentai.net/*', 'https://nhentai.net/login', 'https://nhentai.net/api/v2/docs/*'],
+                exclude: [
+                    '*://i*.nhentai.net/*',
+                    'https://nhentai.net/login',
+                    'https://nhentai.net/api/v2/docs/*',
+                    'https://nhentai.net/user/settings/*',
+                ],
                 version: pkg.version,
             },
             build: {

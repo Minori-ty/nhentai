@@ -38,13 +38,11 @@ const router = createRouter({
             path: '/detail/:id',
             name: 'Detail',
             component: Detail,
-            meta: { scrollSelf: true },
         },
         {
             path: '/single/:id',
             name: 'Single',
             component: Single,
-            meta: { scrollSelf: true },
         },
         {
             path: '/favorites',
