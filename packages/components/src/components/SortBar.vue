@@ -19,6 +19,9 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
+    /**
+     * 更新排序
+     */
     'update:sort': [mode: SortMode]
 }>()
 

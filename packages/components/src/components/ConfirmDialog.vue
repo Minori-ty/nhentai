@@ -45,7 +45,16 @@ function onConfirm() {
     close()
 }
 
-defineExpose({ show, close })
+defineExpose<{
+    /**
+     * 打开弹窗
+     */
+    show: typeof show
+    /**
+     * 关闭弹窗
+     */
+    close: typeof close
+}>({ show, close })
 </script>
 
 <template>

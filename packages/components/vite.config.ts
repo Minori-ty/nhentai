@@ -5,6 +5,8 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 
+import { injectEmitsJsDoc } from './scripts/inject-emits-jsdoc'
+
 export default defineConfig({
     resolve: {
         alias: {
@@ -17,6 +19,7 @@ export default defineConfig({
         dts({
             insertTypesEntry: true,
             cleanVueFileName: true, // Remove .vue extension from declaration file names
+            afterBuild: () => injectEmitsJsDoc(),
         }),
     ],
     build: {

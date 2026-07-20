@@ -12,7 +12,8 @@
         "prepare": "husky",
         "clean:turbo": "turbo run clean",
         "preinstall": "npx only-pnpm",
-        "clear": "rm -rf node_modules .turbo && pnpm -r exec rm -rf node_modules dist .turbo .output"
+        "clear": "rm -rf node_modules .turbo && pnpm -r exec rm -rf node_modules dist .turbo .output",
+        "skills": "npx skills experimental_install -a claude-code"
     },
     "devDependencies": {
         "husky": "^9.1.7",
