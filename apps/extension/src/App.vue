@@ -70,6 +70,6 @@ const { reTitle, rmTitle, onReConfirm, onRmConfirm } = provideDownloadDialogs()
     </router-view>
 
     <!-- 全局共享的 2 个下载确认弹框（不在 GalleryGrid 循环内） -->
-    <ConfirmDialog ref="reRef" :title="reTitle" @confirm="onReConfirm" />
-    <ConfirmDialog ref="rmRef" :title="rmTitle" message="已下载。" confirm-text="移除" @confirm="onRmConfirm" />
+    <ConfirmDialog :title="reTitle" @confirm="onReConfirm" />
+    <ConfirmDialog :title="rmTitle" message="已下载。" confirm-text="移除" @confirm="onRmConfirm" />
 </template>
