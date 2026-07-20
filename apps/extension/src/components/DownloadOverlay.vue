@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import { type GalleryItem, ConfirmDialog } from '@nhentai/components'
-import { ref, useTemplateRef } from 'vue'
+import { type GalleryItem } from '@nhentai/components'
+
+import { useDownloadDialogs } from '../composables/useDownloadDialogs'
 
 /**
  * 画廊封面下载覆盖层组件。
@@ -10,7 +11,7 @@ import { ref, useTemplateRef } from 'vue'
  * - **下载中**：黄色百分比标签，不可点击
  * - **已下载**：绿色勾（可点击重新下载）+ 红色×（hover 时显示，可点击移除）
  *
- * 重新下载和移除均会弹出 ConfirmDialog 确认。
+ * 重新下载和移除均会弹出全局 ConfirmDialog（由 App.vue provide）。
  *
  * @slot 无（本组件作为 slot 内容使用，不提供额外 slot）
  *
@@ -30,44 +31,28 @@ const props = defineProps<{
 const emit = defineEmits<{
     /** 发起下载 */
     startDownload: [id: number]
-    /** 移除下载记录 */
+    /** 移除下载记录（已确认） */
     removeDownload: [id: number]
-    /** 重新下载（先取消标记再发起下载） */
+    /** 重新下载（先取消标记再发起下载，已确认） */
     reDownload: [id: number]
 }>()
 
-// 重新下载确认弹窗
-const confirmDialogRef = useTemplateRef('confirmDialogRef')
-const confirmingId = ref(0)
-const confirmingTitle = ref('')
+const { showReDownload, showRemove } = useDownloadDialogs()
 
-// 移除下载确认弹窗
-const removeDialogRef = useTemplateRef('removeDialogRef')
-const removingId = ref(0)
-const removingTitle = ref('')
-
-/** 弹出"重新下载"确认框 */
+/** 弹出"重新下载"确认框（使用全局共享 dialog） */
 function askReDownload() {
-    confirmingId.value = props.item.id
-    confirmingTitle.value = props.item.japanese_title || props.item.english_title || `#${props.item.id}`
-    confirmDialogRef.value?.show()
+    const title = props.item.japanese_title || props.item.english_title || `#${props.item.id}`
+    showReDownload(title, () => {
+        emit('reDownload', props.item.id)
+    })
 }
 
-/** 重新下载确认后的回调，触发 reDownload 事件 */
-function onReDownloadConfirm() {
-    emit('reDownload', confirmingId.value)
-}
-
-/** 弹出"移除下载"确认框 */
+/** 弹出"移除下载"确认框（使用全局共享 dialog） */
 function askRemove() {
-    removingId.value = props.item.id
-    removingTitle.value = props.item.japanese_title || props.item.english_title || `#${props.item.id}`
-    removeDialogRef.value?.show()
-}
-
-/** 移除下载确认后的回调，触发 removeDownload 事件 */
-function onRemoveConfirm() {
-    emit('removeDownload', removingId.value)
+    const title = props.item.japanese_title || props.item.english_title || `#${props.item.id}`
+    showRemove(title, () => {
+        emit('removeDownload', props.item.id)
+    })
 }
 
 /** 发起下载，触发 startDownload 事件 */
@@ -130,13 +115,4 @@ function handleDownload() {
             </svg>
         </div>
     </button>
-
-    <ConfirmDialog ref="confirmDialogRef" :title="confirmingTitle" @confirm="onReDownloadConfirm" />
-    <ConfirmDialog
-        ref="removeDialogRef"
-        :title="removingTitle"
-        message="已下载。"
-        confirm-text="移除"
-        @confirm="onRemoveConfirm"
-    />
 </template>
