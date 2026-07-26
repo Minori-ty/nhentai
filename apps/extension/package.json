@@ -1,6 +1,6 @@
 {
     "name": "@nhentai/extension",
-    "version": "0.0.1",
+    "version": "0.0.4",
     "private": true,
     "type": "module",
     "scripts": {
@@ -20,6 +20,7 @@
         "@nhentai/components": "workspace:*",
         "@nhentai/utils": "workspace:*",
         "@tailwindcss/vite": "^4.3.0",
+        "@tanstack/vue-virtual": "^3.13.34",
         "date-fns": "^4.4.0",
         "dexie": "^4.4.3",
         "fflate": "^0.8.3",

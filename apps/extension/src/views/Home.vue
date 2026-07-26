@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import { getGallery, getPopular } from '@nhentai/api'
 import type { IResult } from '@nhentai/api'
-import { GalleryGrid, PageIndicator, RetryCountdownBar } from '@nhentai/components'
+import { PageIndicator, RetryCountdownBar } from '@nhentai/components'
 import { ref, onMounted, computed } from 'vue'
 
 import DownloadOverlay from '../components/DownloadOverlay.vue'
+import GalleryGridVirtual from '../components/GalleryGridVirtual.vue'
 import { useDownload, batchCheckDownloaded } from '../composables/useDownload'
 import { useInfiniteScroll } from '../composables/useInfiniteScroll'
 import { useRetryCountdown } from '../composables/useRetryCountdown'
@@ -94,7 +95,7 @@ async function loadGallery() {
         <div class="mx-auto w-fit px-4 pt-6">
             <h2 class="mb-4 text-xl font-bold text-white">Popular Now</h2>
         </div>
-        <GalleryGrid :items="popularItems" :is-end="true" compact>
+        <GalleryGridVirtual :items="popularItems" :is-end="true" compact>
             <template #overlay="{ item }">
                 <DownloadOverlay
                     :item="item"
@@ -105,12 +106,12 @@ async function loadGallery() {
                     @re-download="handleReDownload"
                 />
             </template>
-        </GalleryGrid>
+        </GalleryGridVirtual>
     </template>
 
     <!-- 主列表 -->
     <div :class="popularItems.length > 0 ? 'mt-8' : ''">
-        <GalleryGrid :items="results" :loading="loading" :loading-more="loadingMore" :is-end="isEnd">
+        <GalleryGridVirtual :items="results" :loading="loading" :loading-more="loadingMore" :is-end="isEnd">
             <template #overlay="{ item }">
                 <DownloadOverlay
                     :item="item"
@@ -121,7 +122,7 @@ async function loadGallery() {
                     @re-download="handleReDownload"
                 />
             </template>
-        </GalleryGrid>
+        </GalleryGridVirtual>
     </div>
 
     <PageIndicator :num-pages="numPages" :initial-page="1" />
