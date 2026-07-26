@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { SearchHeader, ConfirmDialog } from '@nhentai/components'
+import { SearchHeader } from '@nhentai/components'
 import { computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
@@ -51,8 +51,8 @@ onMounted(() => {
     }
 })
 
-// 全局共享的 2 个下载确认弹框
-const { reTitle, rmTitle, onReConfirm, onRmConfirm } = provideDownloadDialogs()
+// 全局共享的 2 个下载确认弹框（编程式）
+const { showReDownload, showRemove } = provideDownloadDialogs()
 </script>
 
 <template>
@@ -68,8 +68,4 @@ const { reTitle, rmTitle, onReConfirm, onRmConfirm } = provideDownloadDialogs()
             <component :is="Component" />
         </KeepAlive>
     </router-view>
-
-    <!-- 全局共享的 2 个下载确认弹框（不在 GalleryGrid 循环内） -->
-    <ConfirmDialog :title="reTitle" @confirm="onReConfirm" />
-    <ConfirmDialog :title="rmTitle" message="已下载。" confirm-text="移除" @confirm="onRmConfirm" />
 </template>

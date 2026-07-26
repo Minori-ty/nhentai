@@ -3,10 +3,11 @@ import { Heart } from '@lucide/vue'
 import { getGalleryInfo, favoriteGallery } from '@nhentai/api'
 import type { IGallery, Tag } from '@nhentai/api'
 import { TagTypeEnum } from '@nhentai/api'
-import { LangEnum, BaseBtn, ConfirmDialog, PageLoader } from '@nhentai/components'
+import { LangEnum, BaseBtn, PageLoader } from '@nhentai/components'
+import { showConfirm } from '@nhentai/components'
 import { handleImageError } from '@nhentai/utils'
 import { intervalToDuration, format } from 'date-fns'
-import { ref, useTemplateRef, computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { useDownload, batchCheckDownloaded } from '../composables/useDownload'
@@ -100,18 +101,14 @@ async function handleDownload() {
     dm.startDownload(id)
 }
 
-const reDownloadDialogRef = useTemplateRef('reDownloadDialogRef')
-const removeDialogRef = useTemplateRef('removeDialogRef')
 const itemTitle = computed(
     () => gallery.value?.title.japanese || gallery.value?.title.english || `#${gallery.value?.id}`,
 )
 
-function askReDownload() {
-    reDownloadDialogRef.value?.show()
-}
-
-function onReDownloadConfirm() {
+async function askReDownload() {
     if (!gallery.value) return
+    const confirmed = await showConfirm({ title: itemTitle.value })
+    if (!confirmed) return
     const id = gallery.value.id
     const next = new Set(downloadedIds.value)
     next.delete(id)
@@ -120,12 +117,10 @@ function onReDownloadConfirm() {
     dm.startDownload(id)
 }
 
-function askRemove() {
-    removeDialogRef.value?.show()
-}
-
-function onRemoveConfirm() {
+async function askRemove() {
     if (!gallery.value) return
+    const confirmed = await showConfirm({ title: itemTitle.value, message: '已下载。', confirmText: '移除' })
+    if (!confirmed) return
     const id = gallery.value.id
     dm.removeDownload(id)
     const next = new Set(downloadedIds.value)
@@ -316,15 +311,6 @@ watch(
             </div>
         </div>
     </template>
-
-    <ConfirmDialog ref="reDownloadDialogRef" :title="itemTitle" @confirm="onReDownloadConfirm" />
-    <ConfirmDialog
-        ref="removeDialogRef"
-        :title="itemTitle"
-        message="已下载。"
-        confirm-text="移除"
-        @confirm="onRemoveConfirm"
-    />
 </template>
 
 <style scoped>

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useTemplateRef } from 'vue'
+import { useTemplateRef, onMounted, onBeforeUnmount } from 'vue'
 
 import BaseBtn from './BaseBtn.vue'
 
@@ -7,26 +7,34 @@ import BaseBtn from './BaseBtn.vue'
  * 确认弹窗组件。
  *
  * 使用原生 `<dialog>` + Teleport 渲染，带警告图标和确认/取消按钮。
- * 通过 `show()` / `close()` 方法控制显隐，父组件监听 `confirm` 事件获取确认结果。
+ * - 编程式 API（`showConfirm()`）：挂载时自动调用 `showModal()`，无需外部触发
+ * - 模板 API：可通过 `ref` 调用 `show()` / `close()` 方法
+ *
+ * 监听 `confirm` / `close` 事件获取用户结果。
  */
-defineProps<{
+const props = defineProps<{
     /** 弹窗标题（展示在警告文案中） */
     title: string
     /** 弹窗描述文案，默认 "已经下载过了。" */
     message?: string
     /** 确认按钮文字，默认 "重新下载" */
     confirmText?: string
+    /** 是否在挂载后自动打开（编程式 API 使用） */
+    autoOpen?: boolean
 }>()
 
 const emit = defineEmits<{
     /** 用户点击确认按钮时触发 */
     confirm: []
+    /** 用户取消/关闭弹窗时触发 */
+    close: []
 }>()
 
 const dialogRef = useTemplateRef('dialogRef')
 
 function onDialogClose() {
     document.body.style.overflow = ''
+    emit('close')
 }
 
 /** 打开弹窗 */
@@ -44,6 +52,19 @@ function onConfirm() {
     emit('confirm')
     close()
 }
+
+// 编程式 API：挂载后自动打开
+onMounted(() => {
+    if (props.autoOpen) {
+        show()
+    }
+})
+
+// 防御性清理：组件卸载时确保 body 滚动恢复
+// （避免 onConfirm 中先 cleanup 再 close 导致 body.overflow 残留）
+onBeforeUnmount(() => {
+    document.body.style.overflow = ''
+})
 
 defineExpose<{
     /**

@@ -5,6 +5,9 @@ import './tailwind.css'
 export { default as BaseBtn } from './components/BaseBtn.vue'
 /** 确认弹窗组件，使用原生 `<dialog>` + Teleport 渲染 */
 export { default as ConfirmDialog } from './components/ConfirmDialog.vue'
+/** 编程式确认弹窗函数，返回 Promise<boolean> */
+export { showConfirm } from './components/showConfirm'
+export type { ConfirmDialogOptions } from './components/showConfirm'
 /** 瀑布流画廊网格组件，支持 overlay slot 和无限滚动分页指示 */
 export { default as GalleryGrid } from './components/GalleryGrid.vue'
 export type { GalleryItem } from './components/GalleryGrid.vue'
