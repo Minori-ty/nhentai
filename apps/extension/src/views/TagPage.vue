@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { TagTypeEnum, type TagType } from '@nhentai/api'
-import { GalleryGrid, PageIndicator, SortBar, RetryCountdownBar } from '@nhentai/components'
+import { PageIndicator, SortBar, RetryCountdownBar } from '@nhentai/components'
 import { computed } from 'vue'
 
 import DownloadOverlay from '../components/DownloadOverlay.vue'
+import GalleryGridVirtual from '../components/GalleryGridVirtual.vue'
 import { useDownload } from '../composables/useDownload'
 import { useTagPage } from '../composables/useTagPage'
 
@@ -46,7 +47,7 @@ const title = computed(() => {
 
     <SortBar :total="total" :sort="sort" @update:sort="setSort" />
 
-    <GalleryGrid :items="results" :loading="loading" :loading-more="loadingMore" :is-end="isEnd">
+    <GalleryGridVirtual :items="results" :loading="loading" :loading-more="loadingMore" :is-end="isEnd">
         <template #overlay="{ item }">
             <DownloadOverlay
                 :item="item"
@@ -57,7 +58,7 @@ const title = computed(() => {
                 @re-download="handleReDownload"
             />
         </template>
-    </GalleryGrid>
+    </GalleryGridVirtual>
 
     <PageIndicator :num-pages="numPages" :initial-page="1" />
 

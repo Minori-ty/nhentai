@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import { searchGallery } from '@nhentai/api'
 import type { IResult, SortMode } from '@nhentai/api'
-import { GalleryGrid, PageIndicator, SortBar, RetryCountdownBar } from '@nhentai/components'
+import { PageIndicator, SortBar, RetryCountdownBar } from '@nhentai/components'
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 import DownloadOverlay from '../components/DownloadOverlay.vue'
+import GalleryGridVirtual from '../components/GalleryGridVirtual.vue'
 import { useDownload, batchCheckDownloaded } from '../composables/useDownload'
 import { useInfiniteScroll } from '../composables/useInfiniteScroll'
 import { useRetryCountdown } from '../composables/useRetryCountdown'
@@ -117,7 +118,7 @@ onMounted(() => {
 <template>
     <SortBar :total="total" :sort="sort" @update:sort="setSort" />
 
-    <GalleryGrid :items="results" :loading="loading" :loading-more="loadingMore" :is-end="isEnd">
+    <GalleryGridVirtual :items="results" :loading="loading" :loading-more="loadingMore" :is-end="isEnd">
         <template #overlay="{ item }">
             <DownloadOverlay
                 :item="item"
@@ -128,7 +129,7 @@ onMounted(() => {
                 @re-download="handleReDownload"
             />
         </template>
-    </GalleryGrid>
+    </GalleryGridVirtual>
 
     <PageIndicator :num-pages="numPages" />
 
