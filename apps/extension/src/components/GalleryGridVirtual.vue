@@ -110,6 +110,22 @@ function getLangIcon(tagIds: number[]): string | undefined {
 function getThumbnailUrl(thumbnail: string): string {
     return `https://t1.nhentai.net/${thumbnail}`
 }
+
+/**
+ * 已加载图片的 ID 集合，用于控制 placeholder 的显示。
+ *
+ * 使用 `requestAnimationFrame` 延迟状态更新，确保即使图片从缓存同步加载，
+ * placeholder 也能至少渲染一帧，避免 `v-show` 因快速响应式更新跳过初始渲染。
+ */
+const loadedImageIds = ref(new Set<number>())
+
+function onImageLoad(itemId: number) {
+    requestAnimationFrame(() => {
+        const next = new Set(loadedImageIds.value)
+        next.add(itemId)
+        loadedImageIds.value = next
+    })
+}
 </script>
 
 <template>
@@ -157,18 +173,30 @@ function getThumbnailUrl(thumbnail: string): string {
                         <!-- 封面图 -->
                         <div
                             :class="[
-                                'relative mx-auto max-h-80 overflow-hidden rounded-lg bg-gray-800',
+                                'relative mx-auto overflow-hidden rounded-lg bg-gray-800',
                                 'w-full md:w-56.25',
+                                loadedImageIds.has(item.id) ? 'max-h-80' : 'h-80',
                             ]"
                         >
+                            <!-- shimmer placeholder 图片加载前显示（v-show 保证元素始终在 DOM 中） -->
+                            <div
+                                v-show="!loadedImageIds.has(item.id)"
+                                class="animate-shimmer pointer-events-none absolute inset-0 z-10"
+                            />
                             <!-- overlay slot -->
                             <slot name="overlay" :item="item" />
 
                             <img
                                 :src="getThumbnailUrl(item.thumbnail)"
                                 :alt="item.japanese_title || item.english_title"
-                                class="h-auto w-full transition-transform duration-300 group-hover:scale-110"
+                                :class="[
+                                    'transition-all duration-500 group-hover:scale-110',
+                                    loadedImageIds.has(item.id)
+                                        ? 'h-auto w-full opacity-100'
+                                        : 'h-full w-full object-cover opacity-0',
+                                ]"
                                 loading="lazy"
+                                @load="onImageLoad(item.id)"
                                 @error="handleImageError"
                             />
                         </div>
@@ -205,3 +233,19 @@ function getThumbnailUrl(thumbnail: string): string {
         </div>
     </div>
 </template>
+
+<style scoped>
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.animate-shimmer {
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%);
+    animation: shimmer 1.8s ease-in-out infinite;
+}
+</style>
