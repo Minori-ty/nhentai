@@ -14,6 +14,25 @@ const router = useRouter()
 const gallery = ref<IGallery | null>(null)
 const loading = ref(true)
 
+/** 封面图加载状态 */
+const coverLoaded = ref(false)
+/** 已加载页面缩略图的编号集合，rAF 延迟确保 placeholder 至少渲染一帧 */
+const loadedPageIds = ref(new Set<number>())
+
+function onCoverLoad() {
+    requestAnimationFrame(() => {
+        coverLoaded.value = true
+    })
+}
+
+function onPageLoad(pageNumber: number) {
+    requestAnimationFrame(() => {
+        const next = new Set(loadedPageIds.value)
+        next.add(pageNumber)
+        loadedPageIds.value = next
+    })
+}
+
 const groupedTags = computed(() => {
     if (!gallery.value) return []
     const { tags } = gallery.value
@@ -125,12 +144,19 @@ watch(
             class="detail-top mx-auto mt-4 mb-6 flex max-w-[1110px] flex-col items-center rounded-xl bg-[#2A3744] px-4 py-6"
         >
             <div class="shrink-0">
-                <img
-                    :src="coverUrl"
-                    :alt="gallery.title.japanese || gallery.title.english"
-                    :class="['rounded-lg shadow-lg', 'w-84']"
-                    @error="handleImageError"
-                />
+                <div class="relative mx-auto aspect-[7/10] w-84 overflow-hidden rounded-lg bg-gray-800 shadow-lg">
+                    <div v-show="!coverLoaded" class="animate-shimmer pointer-events-none absolute inset-0 z-10" />
+                    <img
+                        :src="coverUrl"
+                        :alt="gallery.title.japanese || gallery.title.english"
+                        :class="[
+                            'h-full w-full object-cover transition-all duration-500',
+                            coverLoaded ? 'opacity-100' : 'opacity-0',
+                        ]"
+                        @load="onCoverLoad"
+                        @error="handleImageError"
+                    />
+                </div>
             </div>
 
             <div class="flex min-w-0 flex-col gap-4">
@@ -197,12 +223,20 @@ watch(
                     class="group w-full cursor-pointer"
                     @click="goSingle(page.number)"
                 >
-                    <div :class="['mx-auto h-80 overflow-hidden rounded-lg bg-gray-800', 'w-full md:w-56.25']">
+                    <div :class="['relative mx-auto h-80 overflow-hidden rounded-lg bg-gray-800', 'w-full md:w-56.25']">
+                        <div
+                            v-show="!loadedPageIds.has(page.number)"
+                            class="animate-shimmer pointer-events-none absolute inset-0 z-10"
+                        />
                         <img
                             :src="`https://t1.nhentai.net/${page.thumbnail}`"
                             :alt="`Page ${page.number}`"
-                            class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                            :class="[
+                                'h-full w-full object-cover transition-all duration-500 group-hover:scale-110',
+                                loadedPageIds.has(page.number) ? 'opacity-100' : 'opacity-0',
+                            ]"
                             loading="lazy"
+                            @load="onPageLoad(page.number)"
                             @error="handleImageError"
                         />
                     </div>
@@ -216,6 +250,20 @@ watch(
 </template>
 
 <style scoped>
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.animate-shimmer {
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%);
+    animation: shimmer 1.8s ease-in-out infinite;
+}
+
 @media (width >= 64rem) {
     .detail-top {
         flex-direction: row;

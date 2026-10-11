@@ -32,6 +32,13 @@ const emit = defineEmits<{
 
 const dialogRef = useTemplateRef('dialogRef')
 
+/** 退出动画时长（需与 CSS transition duration 保持一致） */
+const CLOSE_DURATION = 200
+/** 关闭流程中，避免重复触发 */
+let closing = false
+/** 退场兜底定时器 */
+let closeTimer: number | undefined
+
 function onDialogClose() {
     document.body.style.overflow = ''
     emit('close')
@@ -39,13 +46,46 @@ function onDialogClose() {
 
 /** 打开弹窗 */
 function show() {
-    dialogRef.value?.showModal()
+    // 重置退场状态（元素此时仍是同一个 el，class 需清干净）
+    closing = false
+    if (closeTimer !== undefined) {
+        window.clearTimeout(closeTimer)
+        closeTimer = undefined
+    }
+    const el = dialogRef.value
+    el?.classList.remove('is-closing')
+    el?.showModal()
     document.body.style.overflow = 'hidden'
 }
 
-/** 关闭弹窗 */
+/** 播放退场动画后再真正 close() */
 function close() {
-    dialogRef.value?.close()
+    const el = dialogRef.value
+    if (!el || !el.open || closing) return
+
+    closing = true
+    el.classList.add('is-closing')
+
+    let done = false
+    const finish = () => {
+        if (done) return
+        done = true
+        if (closeTimer !== undefined) {
+            window.clearTimeout(closeTimer)
+            closeTimer = undefined
+        }
+        el.removeEventListener('transitionend', onTransitionEnd)
+        el.classList.remove('is-closing')
+        closing = false
+        el.close()
+    }
+    // 只监听自身（不含子元素的）过渡结束
+    const onTransitionEnd = (e: TransitionEvent) => {
+        if (e.target === el) finish()
+    }
+    el.addEventListener('transitionend', onTransitionEnd)
+    // 兜底：无过渡/事件丢失时强制关闭
+    closeTimer = window.setTimeout(finish, CLOSE_DURATION + 50)
 }
 
 function onConfirm() {
@@ -84,7 +124,7 @@ defineExpose<{
             ref="dialogRef"
             closedby="any"
             @close="onDialogClose"
-            class="fixed inset-0 m-auto w-96 max-w-[90vw] rounded-2xl border border-gray-700 bg-gray-800 p-0 text-white shadow-2xl backdrop:bg-black/60 backdrop:backdrop-blur-sm"
+            class="dialog-panel fixed inset-0 m-auto w-96 max-w-[90vw] rounded-2xl border border-gray-700 bg-gray-800 p-0 text-white shadow-2xl backdrop:bg-black/60 backdrop:backdrop-blur-sm"
         >
             <div class="flex flex-col items-center gap-5 p-6">
                 <!-- 图标 -->
@@ -118,3 +158,40 @@ defineExpose<{
         </dialog>
     </Teleport>
 </template>
+
+<style scoped>
+/*
+ * 入场动画：利用 `@starting-style` 声明 `[open]` 首次渲染的初始状态，
+ * 配合 transition 实现「打开时」的过渡，无需任何 JS 类名切换。
+ * 浏览器支持：Chrome/Edge 117+、Safari 17.4+、Firefox 129+；
+ * 不支持时优雅降级为无动画直接显示。
+ */
+.dialog-panel {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transition:
+        opacity 200ms ease-out,
+        transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 入场：dialog 从非 open 变为 open 时，以该状态作为过渡起点 */
+@starting-style {
+    .dialog-panel[open] {
+        opacity: 0;
+        transform: translateY(-12px) scale(0.94);
+    }
+}
+
+/* 退场：由 JS 添加 .is-closing 触发 */
+.dialog-panel.is-closing {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.94);
+}
+
+/* 尊重系统「减少动态效果」设置 */
+@media (prefers-reduced-motion: reduce) {
+    .dialog-panel {
+        transition: none;
+    }
+}
+</style>
