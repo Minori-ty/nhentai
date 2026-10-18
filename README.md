@@ -1,3 +1,5 @@
+[English](./README.md) · [中文](./README.zh-CN.md)
+
 # nhentai
 
 English documentation is the primary README. For a Chinese translation, see README.zh-CN.md (中文入口) below.
