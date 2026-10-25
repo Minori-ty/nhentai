@@ -46,6 +46,26 @@ function getThumbnailUrl(thumbnail: string): string {
     return `https://t1.nhentai.net/${thumbnail}`
 }
 
+/** 缩略图尺寸缺失时的兜底比例（nhentai 标准封面 250×353） */
+const FALLBACK_THUMBNAIL = { width: 250, height: 353 }
+
+/**
+ * 封面盒的 `aspect-ratio` 值，由缩略图数据推导而非等图片加载后撑开。
+ *
+ * nhentai 的缩略图有三类比例（约 250×353 竖版、250×250 方版、250×188 横版），
+ * 高度相差最多约 130px。若占位阶段统一用固定高度，图片加载完成时整行高度会突变，
+ * 造成下方内容向上跳动。用 `aspect-ratio` 让占位尺寸一开始就等于最终尺寸。
+ * 配合 `max-h-80`，最终高度与原 `h-auto` + `max-h-80` 完全一致。
+ */
+function coverAspectRatio(item: GalleryItem): string {
+    const { thumbnail_width, thumbnail_height } = item
+    const { width, height } =
+        thumbnail_width > 0 && thumbnail_height > 0
+            ? { width: thumbnail_width, height: thumbnail_height }
+            : FALLBACK_THUMBNAIL
+    return `${width} / ${height}`
+}
+
 /** 已加载图片的 ID 集合，rAF 延迟更新确保 placeholder 至少渲染一帧 */
 const loadedImageIds = ref(new Set<number>())
 
@@ -76,11 +96,8 @@ function onImageLoad(itemId: number) {
             >
                 <!-- 封面图 -->
                 <div
-                    :class="[
-                        'relative mx-auto overflow-hidden rounded-lg bg-gray-800',
-                        'w-full md:w-56.25',
-                        loadedImageIds.has(item.id) ? 'max-h-80' : 'h-80',
-                    ]"
+                    :class="['relative mx-auto max-h-80 overflow-hidden rounded-lg bg-gray-800', 'w-full md:w-56.25']"
+                    :style="{ aspectRatio: coverAspectRatio(item) }"
                 >
                     <!-- shimmer placeholder -->
                     <div
@@ -107,17 +124,21 @@ function onImageLoad(itemId: number) {
                         @error="handleImageError"
                     />
                 </div>
-                <!-- 漫画名 -->
+                <!--
+                    漫画名：`line-clamp-2` 的 `display: -webkit-box` 会被 `flex` 覆盖，
+                    故不用 flex 居中，改为文字 `text-center` +
+                    旗帜图标 `inline-block align-middle`（与 nhentai 原站一致）。
+                -->
                 <p
                     :class="[
-                        'mx-auto mt-2 line-clamp-2 flex items-center justify-center gap-1 text-center text-sm text-gray-300 transition-colors group-hover:text-white',
+                        'mx-auto mt-2 line-clamp-2 text-center text-sm text-gray-300 transition-colors group-hover:text-white',
                         'w-full md:w-56.25',
                     ]"
                 >
                     <img
                         v-if="getLangIcon(item.tag_ids)"
                         :src="getLangIcon(item.tag_ids)"
-                        class="rounded-0.5 h-3.5 w-3.5 shrink-0"
+                        class="rounded-0.5 mr-1 inline-block h-3.5 w-3.5 align-middle"
                     />
                     {{ item.japanese_title || item.english_title || `#${item.id}` }}
                 </p>

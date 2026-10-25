@@ -10,6 +10,9 @@ browser.runtime.onMessage.addListener(async (data: OffscreenCommand) => {
     if (data.target !== MsgTargetEnum.Offscreen) return
 
     try {
+        // 注意：offscreen 运行在 chrome-extension:// 源，document.cookie 读不到站点 cookie，
+        // 所以这里的 getGalleryInfo 实际不会附带 authorization 头。
+        // 该接口匿名即可访问（include=favorite 在未登录时被忽略），图片 CDN 也不需要 token，无需补鉴权。
         const gallery = await getGalleryInfo(data.id)
         const { pages, title } = gallery
         const total = pages.length

@@ -25,11 +25,18 @@ function getImageUrl(page: { number: number; path: string }): string {
     return `https://${preferredSubdomain}.nhentai.net/${page.path}`
 }
 
-function getImageStyle(page: { width: number; height: number }) {
-    const ratio = page.width / page.height
-    const h = Math.round(window.innerHeight * 0.9)
-    const w = Math.round(h * ratio)
-    return { height: `${h}px`, width: `${w}px` }
+/**
+ * 单页尺寸完全交由 CSS 决定：高度取 90vh，宽度由 `aspect-ratio` 从原始宽高推导。
+ *
+ * 这样做的原因：此前用 JS 读取 `window.innerHeight` 计算像素宽高，
+ * 该函数会在每次渲染时对**全部**图片求值，而每张图片加载完成都会
+ * `loadedCount++` 触发整表重渲染 —— 数百页的画廊会因此反复计算并回写样式，
+ * 滚动时明显卡顿。改为纯 CSS 后，列表节点不再携带动态样式，渲染开销归零。
+ *
+ * `90vh` 与原先的 `round(innerHeight * 0.9)` 在桌面端等价（实测相差 < 1px）。
+ */
+function getImageAspectRatio(page: { width: number; height: number }): string {
+    return `${page.width} / ${page.height}`
 }
 
 function onImageLoad() {
@@ -91,7 +98,7 @@ onMounted(async () => {
                 </span>
                 <img
                     :src="getImageUrl(page)"
-                    :style="getImageStyle(page)"
+                    :style="{ height: '90vh', aspectRatio: getImageAspectRatio(page) }"
                     class="block bg-[#2A3744] object-contain"
                     :alt="`Page ${page.number}`"
                     @load="onImageLoad"
