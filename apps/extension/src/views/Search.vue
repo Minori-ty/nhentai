@@ -1,13 +1,12 @@
 <script lang="ts" setup>
-import { searchGallery } from '@nhentai/api'
-import type { IResult, SortMode } from '@nhentai/api'
+import { searchGallery, SortEnum, type IResult, type SortMode } from '@nhentai/api'
 import { PageIndicator, SortBar, RetryCountdownBar } from '@nhentai/components'
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 import DownloadOverlay from '../components/DownloadOverlay.vue'
 import GalleryGridVirtual from '../components/GalleryGridVirtual.vue'
-import { useDownload, batchCheckDownloaded } from '../composables/useDownload'
+import { batchCheckDownloaded } from '../composables/useDownload'
 import { useInfiniteScroll } from '../composables/useInfiniteScroll'
 import { useRetryCountdown } from '../composables/useRetryCountdown'
 import { searchBus, triggerSearch } from '../composables/useSearchBus'
@@ -22,33 +21,13 @@ const page = ref(1)
 const numPages = ref(1)
 const query = ref(String(route.query.q || '').replace(/\+/g, ' '))
 const total = ref(0)
-const sort = ref<SortMode>('date')
+const sort = ref<SortMode>(SortEnum.Date)
 const loading = ref(false)
 const loadingMore = ref(false)
 
-const { dm, downloadedIds, downloadProgress } = useDownload()
 const { retryCountdown, requestWithRetry } = useRetryCountdown()
 
-function handleStartDownload(id: number) {
-    downloadProgress.value = new Map([...downloadProgress.value, [id, 0]])
-    dm.startDownload(id)
-}
-
-function handleRemoveDownload(id: number) {
-    dm.removeDownload(id)
-    const next = new Set(downloadedIds.value)
-    next.delete(id)
-    downloadedIds.value = next
-}
-
-function handleReDownload(id: number) {
-    const next = new Set(downloadedIds.value)
-    next.delete(id)
-    downloadedIds.value = next
-    handleStartDownload(id)
-}
-
-const isEnd = computed(() => page.value === numPages.value)
+const isEnd = computed(() => page.value >= numPages.value)
 
 async function doSearch() {
     loading.value = true
@@ -60,6 +39,8 @@ async function doSearch() {
         numPages.value = data.num_pages
         total.value = data.total
         batchCheckDownloaded(data.result.map((item) => item.id))
+    } catch (err) {
+        console.error('[Search] 搜索失败', err)
     } finally {
         loading.value = false
     }
@@ -77,6 +58,8 @@ async function loadMore() {
         page.value = nextPage
         numPages.value = data.num_pages
         batchCheckDownloaded(data.result.map((item) => item.id))
+    } catch (err) {
+        console.error('[Search] 加载更多失败', err)
     } finally {
         loadingMore.value = false
     }
@@ -84,15 +67,15 @@ async function loadMore() {
 
 function onSearch(q: string) {
     query.value = q
-    sort.value = 'date'
+    sort.value = SortEnum.Date
     router.replace({ query: { q: q || undefined } })
-    doSearch()
+    void doSearch()
 }
 
 function setSort(mode: SortMode) {
     if (sort.value === mode) return
     sort.value = mode
-    doSearch()
+    void doSearch()
 }
 
 useInfiniteScroll(loadMore, page)
@@ -120,14 +103,7 @@ onMounted(() => {
 
     <GalleryGridVirtual :items="results" :loading="loading" :loading-more="loadingMore" :is-end="isEnd">
         <template #overlay="{ item }">
-            <DownloadOverlay
-                :item="item"
-                :downloaded-ids="downloadedIds"
-                :download-progress="downloadProgress"
-                @start-download="handleStartDownload"
-                @remove-download="handleRemoveDownload"
-                @re-download="handleReDownload"
-            />
+            <DownloadOverlay :item="item" />
         </template>
     </GalleryGridVirtual>
 

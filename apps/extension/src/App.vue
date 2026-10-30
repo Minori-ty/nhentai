@@ -3,7 +3,6 @@ import { SearchHeader } from '@nhentai/components'
 import { computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
-import { initDownload } from './composables/useDownload'
 import { provideDownloadDialogs } from './composables/useDownloadDialogs'
 import { triggerSearch } from './composables/useSearchBus'
 import { userAvatar, userName } from './composables/useUserAvatar'
@@ -14,11 +13,6 @@ const route = useRoute()
 // 从 URL 的 q 参数还原搜索词（仅 Search 页面，Favorites 有自己的搜索框）
 // + 号转空格，兼容 encodeURIComponent 不解码 + 的行为
 const searchQuery = computed(() => (route.name === 'Search' ? String(route.query.q || '').replace(/\+/g, ' ') : ''))
-
-// 初始化下载管理器
-import('./utils/downloadManager').then(({ createDownloadManager }) => {
-    initDownload(createDownloadManager())
-})
 
 function onSearch(query: string) {
     triggerSearch(query)
@@ -51,8 +45,9 @@ onMounted(() => {
     }
 })
 
-// 全局共享的 2 个下载确认弹框（编程式）
-const { showReDownload, showRemove } = provideDownloadDialogs()
+// 提供全局共享的 2 个下载确认弹框（编程式）。
+// 子组件通过 inject 自行取用，这里不需要接收返回值。
+provideDownloadDialogs()
 </script>
 
 <template>

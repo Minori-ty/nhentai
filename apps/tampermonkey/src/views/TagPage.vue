@@ -9,8 +9,9 @@ const props = defineProps<{
     tagType: TagType
 }>()
 
+// 传 getter 而不是值：6 条标签路由复用同一组件实例，props.tagType 会变
 const { name, results, numPages, total, sort, loading, loadingMore, isEnd, retryCountdown, setSort } = useTagPage(
-    props.tagType,
+    () => props.tagType,
 )
 
 const title = computed(() => {
@@ -26,7 +27,7 @@ const title = computed(() => {
 
     <GalleryGrid :items="results" :loading="loading" :loading-more="loadingMore" :is-end="isEnd" />
 
-    <PageIndicator :num-pages="numPages" :initial-page="1" :is-mobile="true" />
+    <PageIndicator :num-pages="numPages" :initial-page="1" />
 
     <RetryCountdownBar :retry-countdown="retryCountdown" />
 </template>

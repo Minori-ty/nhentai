@@ -3,21 +3,24 @@ import { Heart } from '@lucide/vue'
 import { getGalleryInfo, favoriteGallery } from '@nhentai/api'
 import type { IGallery, Tag } from '@nhentai/api'
 import { TagTypeEnum } from '@nhentai/api'
-import { LangEnum, BaseBtn, PageLoader } from '@nhentai/components'
-import { showConfirm } from '@nhentai/components'
+import { LangEnum, BaseBtn, PageLoader, RetryCountdownBar, showConfirm } from '@nhentai/components'
 import { handleImageError } from '@nhentai/utils'
 import { intervalToDuration, format } from 'date-fns'
 import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import { useDownload, batchCheckDownloaded } from '../composables/useDownload'
+import { useDownload } from '../composables/useDownload'
+import { useRetryCountdown } from '../composables/useRetryCountdown'
 
 const route = useRoute<'Detail'>()
 const router = useRouter()
 const gallery = ref<IGallery | null>(null)
 const loading = ref(true)
+const loadError = ref('')
 
-const { dm, downloadedIds, downloadProgress } = useDownload()
+const { downloadProgress, downloadErrors, isDownloaded, isDownloading, startDownload, removeDownload, reDownload } =
+    useDownload()
+const { retryCountdown, requestWithRetry } = useRetryCountdown()
 
 /** 封面图加载状态 */
 const coverLoaded = ref(false)
@@ -92,7 +95,8 @@ const uploadDate = computed(() => {
 })
 
 function formatCount(n: number): string {
-    if (n >= 1000) return (n / 1000).toFixed(1) + 'K'
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M'
+    if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K'
     return n.toLocaleString()
 }
 
@@ -105,20 +109,18 @@ async function toggleFavorite() {
         const res = await favoriteGallery(gallery.value.id, !gallery.value.is_favorited)
         gallery.value.is_favorited = res.favorited
         gallery.value.num_favorites = res.num_favorites
+    } catch (err) {
+        console.error('[Detail] 切换收藏失败', err)
     } finally {
         favoriting.value = false
     }
 }
 
-const isDownloaded = computed(() => gallery.value && downloadedIds.value.has(gallery.value.id))
-const currentProgress = computed(() => (gallery.value && downloadProgress.value.get(gallery.value.id)) || 0)
-
-async function handleDownload() {
-    if (!gallery.value) return
-    const id = gallery.value.id
-    downloadProgress.value = new Map([...downloadProgress.value, [id, 0]])
-    dm.startDownload(id)
-}
+/** 注意：用 `has()` 判断「下载中」，不能用 `progress || 0` —— 0% 会被当成「未下载」 */
+const currentProgress = computed(() => (gallery.value ? (downloadProgress.get(gallery.value.id) ?? 0) : 0))
+const downloadError = computed(() => (gallery.value ? downloadErrors.get(gallery.value.id) : undefined))
+const downloaded = computed(() => (gallery.value ? isDownloaded(gallery.value.id) : false))
+const downloading = computed(() => (gallery.value ? isDownloading(gallery.value.id) : false))
 
 const itemTitle = computed(
     () => gallery.value?.title.japanese || gallery.value?.title.english || `#${gallery.value?.id}`,
@@ -128,23 +130,14 @@ async function askReDownload() {
     if (!gallery.value) return
     const confirmed = await showConfirm({ title: itemTitle.value })
     if (!confirmed) return
-    const id = gallery.value.id
-    const next = new Set(downloadedIds.value)
-    next.delete(id)
-    downloadedIds.value = next
-    downloadProgress.value = new Map([...downloadProgress.value, [id, 0]])
-    dm.startDownload(id)
+    reDownload(gallery.value.id)
 }
 
 async function askRemove() {
     if (!gallery.value) return
     const confirmed = await showConfirm({ title: itemTitle.value, message: '已下载。', confirmText: '移除' })
     if (!confirmed) return
-    const id = gallery.value.id
-    dm.removeDownload(id)
-    const next = new Set(downloadedIds.value)
-    next.delete(id)
-    downloadedIds.value = next
+    removeDownload(gallery.value.id)
 }
 
 function goTag(tag: Tag) {
@@ -156,8 +149,27 @@ function goTag(tag: Tag) {
     }
 }
 
-function goSingle(page?: number) {
-    router.push({ name: 'Single', params: { id: route.params.id }, query: page ? { page } : undefined })
+/** 打开滚动预览（缩略图已改为 router-link，这里只处理「从头开始」入口） */
+function goSingle() {
+    router.push({ name: 'Single', params: { id: route.params.id } })
+}
+
+async function loadGallery(id: number) {
+    loading.value = true
+    loadError.value = ''
+    gallery.value = null
+    // 这些状态属于「某一本画廊」，切换 id 必须重置，否则封面/缩略图会跳过 shimmer 直接空着
+    coverLoaded.value = false
+    loadedPageIds.value = new Set()
+
+    try {
+        gallery.value = await requestWithRetry(() => getGalleryInfo(id))
+    } catch (err) {
+        loadError.value = err instanceof Error ? err.message : String(err)
+        console.error('[Detail] 加载画廊失败', err)
+    } finally {
+        loading.value = false
+    }
 }
 
 // 监听路由参数变化，支持 KeepAlive 下切换不同 gallery
@@ -166,14 +178,7 @@ watch(
     (newId) => {
         const id = Number(newId)
         if (!Number.isFinite(id)) return
-        loading.value = true
-        gallery.value = null
-        getGalleryInfo(id)
-            .then((g) => {
-                gallery.value = g
-                batchCheckDownloaded([id])
-            })
-            .finally(() => (loading.value = false))
+        void loadGallery(id)
     },
     { immediate: true },
 )
@@ -182,6 +187,12 @@ watch(
 <template>
     <!-- 加载中 -->
     <PageLoader v-if="loading" />
+
+    <!-- 加载失败 -->
+    <div v-else-if="loadError" class="mx-auto max-w-lg py-20 text-center">
+        <p class="mb-4 text-gray-400">加载失败：{{ loadError }}</p>
+        <BaseBtn variant="primary" @click="loadGallery(Number(route.params.id))">重试</BaseBtn>
+    </div>
 
     <!-- Detail 内容 -->
     <template v-else-if="gallery">
@@ -220,15 +231,16 @@ watch(
                     <div v-for="group in groupedTags" :key="group.label" class="flex items-start gap-4">
                         <span class="w-28 shrink-0 text-right text-gray-400">{{ group.label }}:</span>
                         <div class="flex flex-wrap gap-1">
-                            <span
+                            <button
                                 v-for="tag in group.tags"
                                 :key="tag.id"
-                                class="cursor-pointer rounded bg-gray-800 px-2 py-0.5 text-base text-gray-300 transition-colors hover:bg-gray-700 hover:text-white"
+                                type="button"
+                                class="cursor-pointer rounded border-none bg-gray-800 px-2 py-0.5 text-base text-gray-300 transition-colors hover:bg-gray-700 hover:text-white"
                                 @click="goTag(tag)"
                             >
                                 {{ tag.name }}
                                 <span class="ml-1 text-sm text-gray-500">{{ formatCount(tag.count) }}</span>
-                            </span>
+                            </button>
                         </div>
                     </div>
 
@@ -256,33 +268,10 @@ watch(
                         </span>
                     </BaseBtn>
 
-                    <!-- 下载按钮 -->
-                    <BaseBtn
-                        v-if="!isDownloaded && !currentProgress"
-                        variant="info"
-                        size="semibold"
-                        @click="handleDownload"
-                    >
-                        <svg class="inline-block h-5 w-5 fill-current align-middle" viewBox="0 0 512 512">
-                            <path
-                                d="M216 0h80c13.3 0 24 10.7 24 24v168h87.7c17.8 0 26.7 21.5 14.1 34.1L269.7 378.3c-7.5 7.5-19.8 7.5-27.3 0L90.1 226.1c-12.6-12.6-3.7-34.1 14.1-34.1H192V24c0-13.3 10.7-24 24-24zm296 376v112c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V376c0-13.3 10.7-24 24-24h146.7l49 49c20.1 20.1 52.5 20.1 72.6 0l49-49H488c13.3 0 24 10.7 24 24zm-124 88c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20zm64 0c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20z"
-                            />
-                        </svg>
-                        下载
-                    </BaseBtn>
-                    <!-- 下载中：百分比 -->
-                    <BaseBtn
-                        v-if="currentProgress > 0 && currentProgress < 100"
-                        variant="warning"
-                        size="semibold"
-                        disabled
-                    >
-                        下载中 {{ currentProgress }}%
-                    </BaseBtn>
-                    <!-- 已下载：可点击重新下载 -->
+                    <!-- 已下载：可点击重新下载，右上角 × 移除 -->
                     <button
-                        v-if="isDownloaded && !currentProgress"
-                        class="relative cursor-pointer rounded-md bg-green-400 px-5 py-2 text-base font-semibold text-white transition-colors hover:bg-green-300"
+                        v-if="downloaded && !downloading"
+                        class="group relative cursor-pointer rounded-md bg-green-400 px-5 py-2 text-base font-semibold text-white transition-colors hover:bg-green-300"
                         @click="askReDownload"
                     >
                         ✓ 已下载
@@ -292,6 +281,29 @@ watch(
                             >×</span
                         >
                     </button>
+                    <!-- 下载中：百分比 -->
+                    <BaseBtn v-else-if="downloading" variant="warning" size="semibold" disabled>
+                        下载中 {{ currentProgress }}%
+                    </BaseBtn>
+                    <!-- 失败：重试 -->
+                    <BaseBtn
+                        v-else-if="downloadError"
+                        variant="danger"
+                        size="semibold"
+                        :title="downloadError"
+                        @click="startDownload(gallery.id)"
+                    >
+                        下载失败，重试
+                    </BaseBtn>
+                    <!-- 未下载 -->
+                    <BaseBtn v-else variant="info" size="semibold" @click="startDownload(gallery.id)">
+                        <svg class="inline-block h-5 w-5 fill-current align-middle" viewBox="0 0 512 512">
+                            <path
+                                d="M216 0h80c13.3 0 24 10.7 24 24v168h87.7c17.8 0 26.7 21.5 14.1 34.1L269.7 378.3c-7.5 7.5-19.8 7.5-27.3 0L90.1 226.1c-12.6-12.6-3.7-34.1 14.1-34.1H192V24c0-13.3 10.7-24 24-24zm296 376v112c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V376c0-13.3-10.7-24 24-24h146.7l49 49c20.1 20.1 52.5 20.1 72.6 0l49-49H488c13.3 0 24 10.7 24 24zm-124 88c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20zm64 0c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20z"
+                            />
+                        </svg>
+                        下载
+                    </BaseBtn>
 
                     <!-- 滚动预览 -->
                     <BaseBtn variant="success" size="semibold" @click="goSingle()">
@@ -308,18 +320,12 @@ watch(
 
         <!-- ===== 下半部分：所有漫画缩略图 ===== -->
         <div class="mx-auto w-fit rounded-xl bg-[#2A3744] px-6 py-6">
-            <div
-                :class="[
-                    'grid justify-center gap-6',
-                    // ['3xl:grid-cols-9 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7'],
-                    ['grid-cols-5'],
-                ]"
-            >
-                <div
+            <div class="grid grid-cols-5 justify-center gap-6">
+                <router-link
                     v-for="page in gallery.pages"
                     :key="page.number"
-                    class="group cursor-pointer"
-                    @click="goSingle(page.number)"
+                    :to="{ name: 'Single', params: { id: gallery.id }, query: { page: page.number } }"
+                    class="group block text-current"
                 >
                     <div :class="['relative mx-auto h-80 overflow-hidden rounded-lg bg-gray-800', 'w-full md:w-56.25']">
                         <div
@@ -341,10 +347,12 @@ watch(
                     <p :class="['mx-auto mt-2 text-center text-sm text-gray-400', 'w-full md:w-56.25']">
                         #{{ page.number }}
                     </p>
-                </div>
+                </router-link>
             </div>
         </div>
     </template>
+
+    <RetryCountdownBar :retry-countdown="retryCountdown" />
 </template>
 
 <style scoped>

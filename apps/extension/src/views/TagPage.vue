@@ -5,36 +5,16 @@ import { computed } from 'vue'
 
 import DownloadOverlay from '../components/DownloadOverlay.vue'
 import GalleryGridVirtual from '../components/GalleryGridVirtual.vue'
-import { useDownload } from '../composables/useDownload'
 import { useTagPage } from '../composables/useTagPage'
 
 const props = defineProps<{
     tagType: TagType
 }>()
 
+// 传 getter 而不是值：6 条标签路由复用同一组件实例，props.tagType 会变
 const { name, results, numPages, total, sort, loading, loadingMore, isEnd, retryCountdown, setSort } = useTagPage(
-    props.tagType,
+    () => props.tagType,
 )
-const { dm, downloadedIds, downloadProgress } = useDownload()
-
-function handleStartDownload(id: number) {
-    downloadProgress.value = new Map([...downloadProgress.value, [id, 0]])
-    dm.startDownload(id)
-}
-
-function handleRemoveDownload(id: number) {
-    dm.removeDownload(id)
-    const next = new Set(downloadedIds.value)
-    next.delete(id)
-    downloadedIds.value = next
-}
-
-function handleReDownload(id: number) {
-    const next = new Set(downloadedIds.value)
-    next.delete(id)
-    downloadedIds.value = next
-    handleStartDownload(id)
-}
 
 const title = computed(() => {
     const label = TagTypeEnum.label(props.tagType)
@@ -49,14 +29,7 @@ const title = computed(() => {
 
     <GalleryGridVirtual :items="results" :loading="loading" :loading-more="loadingMore" :is-end="isEnd">
         <template #overlay="{ item }">
-            <DownloadOverlay
-                :item="item"
-                :downloaded-ids="downloadedIds"
-                :download-progress="downloadProgress"
-                @start-download="handleStartDownload"
-                @remove-download="handleRemoveDownload"
-                @re-download="handleReDownload"
-            />
+            <DownloadOverlay :item="item" />
         </template>
     </GalleryGridVirtual>
 

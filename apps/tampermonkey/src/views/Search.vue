@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import { searchGallery } from '@nhentai/api'
-import type { IResult, SortMode } from '@nhentai/api'
+import { searchGallery, SortEnum, type IResult, type SortMode } from '@nhentai/api'
 import { GalleryGrid, PageIndicator, SortBar, RetryCountdownBar } from '@nhentai/components'
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
@@ -19,13 +18,13 @@ const page = ref(1)
 const numPages = ref(1)
 const query = ref(String(route.query.q || '').replace(/\+/g, ' '))
 const total = ref(0)
-const sort = ref<SortMode>('date')
+const sort = ref<SortMode>(SortEnum.Date)
 const loading = ref(false)
 const loadingMore = ref(false)
 
 const { retryCountdown, requestWithRetry } = useRetryCountdown()
 
-const isEnd = computed(() => page.value === numPages.value)
+const isEnd = computed(() => page.value >= numPages.value)
 
 async function doSearch() {
     loading.value = true
@@ -36,6 +35,8 @@ async function doSearch() {
         results.value = data.result.map((item) => ({ ...item, _page: 1 }))
         numPages.value = data.num_pages
         total.value = data.total
+    } catch (err) {
+        console.error('[Search] 搜索失败', err)
     } finally {
         loading.value = false
     }
@@ -52,6 +53,8 @@ async function loadMore() {
         results.value.push(...data.result.map((item) => ({ ...item, _page: nextPage })))
         page.value = nextPage
         numPages.value = data.num_pages
+    } catch (err) {
+        console.error('[Search] 加载更多失败', err)
     } finally {
         loadingMore.value = false
     }
@@ -59,15 +62,15 @@ async function loadMore() {
 
 function onSearch(q: string) {
     query.value = q
-    sort.value = 'date'
-    router.replace({ query: { q: q || undefined } })
-    doSearch()
+    sort.value = SortEnum.Date
+    void router.replace({ query: { q: q || undefined } })
+    void doSearch()
 }
 
 function setSort(mode: SortMode) {
     if (sort.value === mode) return
     sort.value = mode
-    doSearch()
+    void doSearch()
 }
 
 useInfiniteScroll(loadMore, page)
@@ -95,7 +98,7 @@ onMounted(() => {
 
     <GalleryGrid :items="results" :loading="loading" :loading-more="loadingMore" :is-end="isEnd" />
 
-    <PageIndicator :num-pages="numPages" :is-mobile="true" />
+    <PageIndicator :num-pages="numPages" />
 
     <RetryCountdownBar :retry-countdown="retryCountdown" />
 </template>

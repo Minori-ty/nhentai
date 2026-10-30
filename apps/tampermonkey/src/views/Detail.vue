@@ -3,16 +3,21 @@ import { Heart } from '@lucide/vue'
 import { getGalleryInfo, favoriteGallery } from '@nhentai/api'
 import type { IGallery, Tag } from '@nhentai/api'
 import { TagTypeEnum } from '@nhentai/api'
-import { LangEnum, BaseBtn, PageLoader } from '@nhentai/components'
+import { LangEnum, BaseBtn, PageLoader, RetryCountdownBar } from '@nhentai/components'
 import { handleImageError } from '@nhentai/utils'
 import { intervalToDuration, format } from 'date-fns'
 import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+import { useRetryCountdown } from '../composables/useRetryCountdown'
+
 const route = useRoute<'Detail'>()
 const router = useRouter()
 const gallery = ref<IGallery | null>(null)
 const loading = ref(true)
+const loadError = ref('')
+
+const { retryCountdown, requestWithRetry } = useRetryCountdown()
 
 /** 封面图加载状态 */
 const coverLoaded = ref(false)
@@ -87,7 +92,8 @@ const uploadDate = computed(() => {
 })
 
 function formatCount(n: number): string {
-    if (n >= 1000) return (n / 1000).toFixed(1) + 'K'
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M'
+    if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K'
     return n.toLocaleString()
 }
 
@@ -100,6 +106,8 @@ async function toggleFavorite() {
         const res = await favoriteGallery(gallery.value.id, !gallery.value.is_favorited)
         gallery.value.is_favorited = res.favorited
         gallery.value.num_favorites = res.num_favorites
+    } catch (err) {
+        console.error('[Detail] 切换收藏失败', err)
     } finally {
         favoriting.value = false
     }
@@ -114,8 +122,27 @@ function goTag(tag: Tag) {
     }
 }
 
-function goSingle(page?: number) {
-    router.push({ name: 'Single', params: { id: route.params.id }, query: page ? { page } : undefined })
+/** 打开滚动预览（缩略图已改为 router-link，这里只处理「从头开始」入口） */
+function goSingle() {
+    router.push({ name: 'Single', params: { id: route.params.id } })
+}
+
+async function loadGallery(id: number) {
+    loading.value = true
+    loadError.value = ''
+    gallery.value = null
+    // 这些状态属于「某一本画廊」，切换 id 必须重置，否则封面/缩略图会跳过 shimmer 直接空着
+    coverLoaded.value = false
+    loadedPageIds.value = new Set()
+
+    try {
+        gallery.value = await requestWithRetry(() => getGalleryInfo(id))
+    } catch (err) {
+        loadError.value = err instanceof Error ? err.message : String(err)
+        console.error('[Detail] 加载画廊失败', err)
+    } finally {
+        loading.value = false
+    }
 }
 
 // 监听路由参数变化，支持 KeepAlive 下切换不同 gallery
@@ -124,11 +151,7 @@ watch(
     (newId) => {
         const id = Number(newId)
         if (!Number.isFinite(id)) return
-        loading.value = true
-        gallery.value = null
-        getGalleryInfo(id)
-            .then((g) => (gallery.value = g))
-            .finally(() => (loading.value = false))
+        void loadGallery(id)
     },
     { immediate: true },
 )
@@ -138,11 +161,19 @@ watch(
     <!-- 加载中 -->
     <PageLoader v-if="loading" />
 
+    <!-- 加载失败 -->
+    <div v-else-if="loadError" class="mx-auto max-w-lg py-20 text-center">
+        <p class="mb-4 text-gray-400">加载失败：{{ loadError }}</p>
+        <BaseBtn variant="primary" @click="loadGallery(Number(route.params.id))">重试</BaseBtn>
+    </div>
+
     <!-- Detail 内容 -->
     <template v-else-if="gallery">
+        <!-- ===== 上半部分：移动端上下布局 / lg+左右布局 ===== -->
         <div
             class="detail-top mx-auto mt-4 mb-6 flex max-w-[1110px] flex-col items-center rounded-xl bg-[#2A3744] px-4 py-6"
         >
+            <!-- 左边（移动端：上方）封面 -->
             <div class="shrink-0">
                 <div class="relative mx-auto aspect-[7/10] w-84 overflow-hidden rounded-lg bg-gray-800 shadow-lg">
                     <div v-show="!coverLoaded" class="animate-shimmer pointer-events-none absolute inset-0 z-10" />
@@ -159,40 +190,49 @@ watch(
                 </div>
             </div>
 
+            <!-- 右边（移动端：下方）信息 -->
             <div class="flex min-w-0 flex-col gap-4">
+                <!-- 标题 -->
                 <h1 class="flex items-center gap-3 text-3xl leading-snug font-bold text-white">
                     <img v-if="langIcon" :src="langIcon" class="rounded-0.5 h-7 w-7 shrink-0" />
                     {{ gallery.title.japanese || gallery.title.english || gallery.title.pretty }}
                 </h1>
 
+                <!-- 信息行：Tags / Artists / Groups / Pages / Uploaded -->
                 <div class="flex flex-col gap-3 text-lg">
+                    <!-- Tag 分组 -->
                     <div v-for="group in groupedTags" :key="group.label" class="flex items-start gap-4">
                         <span class="w-28 shrink-0 text-right text-gray-400">{{ group.label }}:</span>
                         <div class="flex flex-wrap gap-1">
-                            <span
+                            <button
                                 v-for="tag in group.tags"
                                 :key="tag.id"
-                                class="cursor-pointer rounded bg-gray-800 px-2 py-0.5 text-base text-gray-300 transition-colors hover:bg-gray-700 hover:text-white"
+                                type="button"
+                                class="cursor-pointer rounded border-none bg-gray-800 px-2 py-0.5 text-base text-gray-300 transition-colors hover:bg-gray-700 hover:text-white"
                                 @click="goTag(tag)"
                             >
                                 {{ tag.name }}
                                 <span class="ml-1 text-sm text-gray-500">{{ formatCount(tag.count) }}</span>
-                            </span>
+                            </button>
                         </div>
                     </div>
 
+                    <!-- Pages -->
                     <div class="flex items-center gap-4">
                         <span class="w-28 shrink-0 text-right text-gray-400">Pages:</span>
                         <span class="text-gray-300">{{ gallery.num_pages }}</span>
                     </div>
 
+                    <!-- Uploaded -->
                     <div class="flex items-center gap-4">
                         <span class="w-28 shrink-0 text-right text-gray-400">Uploaded:</span>
                         <span class="text-gray-300">{{ uploadDate }}</span>
                     </div>
                 </div>
 
+                <!-- 按钮组 -->
                 <div class="mt-2 flex items-center gap-3 self-start">
+                    <!-- Favorite 按钮 -->
                     <BaseBtn variant="danger" size="semibold" :disabled="favoriting" @click="toggleFavorite">
                         <span class="inline-flex items-center gap-1">
                             <Heart :fill="gallery.is_favorited ? 'currentColor' : 'none'" class="h-5 w-5" />
@@ -201,6 +241,7 @@ watch(
                         </span>
                     </BaseBtn>
 
+                    <!-- 滚动预览 -->
                     <BaseBtn variant="success" size="semibold" @click="goSingle()">
                         <svg class="inline-block h-5 w-5 fill-current align-middle" viewBox="0 0 448 512">
                             <path
@@ -213,15 +254,14 @@ watch(
             </div>
         </div>
 
+        <!-- ===== 下半部分：所有漫画缩略图 ===== -->
         <div class="mx-auto w-fit rounded-xl bg-[#2A3744] px-6 py-6">
-            <div
-                class="3xl:grid-cols-9 grid grid-cols-2 justify-center gap-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7"
-            >
-                <div
+            <div class="grid grid-cols-5 justify-center gap-6">
+                <router-link
                     v-for="page in gallery.pages"
                     :key="page.number"
-                    class="group w-full cursor-pointer"
-                    @click="goSingle(page.number)"
+                    :to="{ name: 'Single', params: { id: gallery.id }, query: { page: page.number } }"
+                    class="group block text-current"
                 >
                     <div :class="['relative mx-auto h-80 overflow-hidden rounded-lg bg-gray-800', 'w-full md:w-56.25']">
                         <div
@@ -243,10 +283,12 @@ watch(
                     <p :class="['mx-auto mt-2 text-center text-sm text-gray-400', 'w-full md:w-56.25']">
                         #{{ page.number }}
                     </p>
-                </div>
+                </router-link>
             </div>
         </div>
     </template>
+
+    <RetryCountdownBar :retry-countdown="retryCountdown" />
 </template>
 
 <style scoped>

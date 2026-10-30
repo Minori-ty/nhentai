@@ -6,7 +6,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 import DownloadOverlay from '../components/DownloadOverlay.vue'
-import { useDownload, batchCheckDownloaded } from '../composables/useDownload'
+import { batchCheckDownloaded } from '../composables/useDownload'
 import { useInfiniteScroll } from '../composables/useInfiniteScroll'
 import { useRetryCountdown } from '../composables/useRetryCountdown'
 
@@ -15,56 +15,32 @@ type Item = IResult & { _page: number }
 const router = useRouter()
 const route = useRoute()
 
-function resolveInitialPage(): number {
-    const page =
-        parseInt(String(route.query.page || '')) ||
-        parseInt(new URLSearchParams(location.search).get('page') || '') ||
-        1
-    const urlQ = new URLSearchParams(location.search).get('q') || ''
-    const sync: Record<string, any> = {}
-    if (!route.query.page && new URLSearchParams(location.search).get('page')) {
-        sync.page = page
-    }
-    if (!route.query.q && urlQ) {
-        sync.q = urlQ
-    }
-    if (Object.keys(sync).length) {
-        router.replace({ query: { ...route.query, ...sync } })
-    }
-    return page
+/** 从 URL（hash query 优先，其次站点原先的 search）解析初始页码 */
+function readInitialPage(): number {
+    const fromRoute = parseInt(String(route.query.page || ''))
+    if (Number.isFinite(fromRoute) && fromRoute > 0) return fromRoute
+    const fromSearch = parseInt(new URLSearchParams(location.search).get('page') || '')
+    if (Number.isFinite(fromSearch) && fromSearch > 0) return fromSearch
+    return 1
 }
-const initialPage = resolveInitialPage()
+
+function readInitialQuery(): string {
+    return String(route.query.q || '') || (new URLSearchParams(location.search).get('q') ?? '')
+}
+
+const initialPage = readInitialPage()
+
 const results = ref<Item[]>([])
 const page = ref(initialPage)
 const numPages = ref(1)
 const loading = ref(false)
 const loadingMore = ref(false)
-const query = ref(String(route.query.q || ''))
+const query = ref(readInitialQuery())
 const total = ref(0)
 
-const { dm, downloadedIds, downloadProgress } = useDownload()
 const { retryCountdown, requestWithRetry } = useRetryCountdown()
 
-function handleStartDownload(id: number) {
-    downloadProgress.value = new Map([...downloadProgress.value, [id, 0]])
-    dm.startDownload(id)
-}
-
-function handleRemoveDownload(id: number) {
-    dm.removeDownload(id)
-    const next = new Set(downloadedIds.value)
-    next.delete(id)
-    downloadedIds.value = next
-}
-
-function handleReDownload(id: number) {
-    const next = new Set(downloadedIds.value)
-    next.delete(id)
-    downloadedIds.value = next
-    handleStartDownload(id)
-}
-
-const isEnd = computed(() => page.value === numPages.value)
+const isEnd = computed(() => page.value >= numPages.value)
 
 async function loadFavorites() {
     loading.value = true
@@ -76,6 +52,8 @@ async function loadFavorites() {
         numPages.value = data.num_pages
         total.value = data.total
         batchCheckDownloaded(data.result.map((item) => item.id))
+    } catch (err) {
+        console.error('[Favorites] 加载收藏失败', err)
     } finally {
         loading.value = false
     }
@@ -92,21 +70,38 @@ async function loadMore() {
         numPages.value = data.num_pages
         total.value = data.total
         batchCheckDownloaded(data.result.map((item) => item.id))
+    } catch (err) {
+        console.error('[Favorites] 加载更多失败', err)
     } finally {
         loadingMore.value = false
     }
 }
 
 function doSearch() {
-    router.replace({ query: { ...route.query, q: query.value || undefined, page: 1 } })
+    void router.replace({ query: { ...route.query, q: query.value || undefined, page: 1 } })
     page.value = 1
-    loadFavorites()
+    void loadFavorites()
 }
 
 useInfiniteScroll(loadMore, page)
 
 onMounted(() => {
-    loadFavorites()
+    // 把站点原 URL 上的 page / q 参数同步进 hash 路由。
+    // 放在 onMounted 里做：setup 阶段的渲染期副作用会触发多余导航。
+    const search = new URLSearchParams(location.search)
+    const urlPage = search.get('page')
+    const urlQ = search.get('q')
+    const sync: Record<string, string> = {}
+    if (!route.query.page && urlPage) sync.page = String(initialPage)
+    if (!route.query.q && urlQ) {
+        sync.q = urlQ
+        query.value = urlQ
+    }
+    if (Object.keys(sync).length > 0) {
+        void router.replace({ query: { ...route.query, ...sync } })
+    }
+
+    void loadFavorites()
 })
 </script>
 
@@ -141,14 +136,7 @@ onMounted(() => {
         empty-text="No favorites found"
     >
         <template #overlay="{ item }">
-            <DownloadOverlay
-                :item="item"
-                :downloaded-ids="downloadedIds"
-                :download-progress="downloadProgress"
-                @start-download="handleStartDownload"
-                @remove-download="handleRemoveDownload"
-                @re-download="handleReDownload"
-            />
+            <DownloadOverlay :item="item" />
         </template>
     </GalleryGrid>
 

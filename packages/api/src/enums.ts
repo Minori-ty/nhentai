@@ -29,6 +29,7 @@ export const MsgTypeEnum = Enum({
     Download: { value: 'download', label: '下载' },
     Progress: { value: 'progress', label: '进度' },
     Success: { value: 'success', label: '完成' },
+    Error: { value: 'error', label: '失败' },
 })
 
 export type MsgType = (typeof MsgTypeEnum)['valueType']

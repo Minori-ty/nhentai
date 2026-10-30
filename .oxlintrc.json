@@ -33,6 +33,7 @@
         "defineEmits": "readonly",
         "defineExpose": "readonly",
         "defineModel": "readonly",
+        "defineOptions": "readonly",
         "withDefaults": "readonly",
         "browser": "readonly",
         "defineBackground": "readonly",

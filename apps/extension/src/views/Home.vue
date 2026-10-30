@@ -6,7 +6,7 @@ import { ref, onMounted, computed } from 'vue'
 
 import DownloadOverlay from '../components/DownloadOverlay.vue'
 import GalleryGridVirtual from '../components/GalleryGridVirtual.vue'
-import { useDownload, batchCheckDownloaded } from '../composables/useDownload'
+import { batchCheckDownloaded } from '../composables/useDownload'
 import { useInfiniteScroll } from '../composables/useInfiniteScroll'
 import { useRetryCountdown } from '../composables/useRetryCountdown'
 
@@ -21,72 +21,67 @@ const loadingMore = ref(false)
 // Popular Now
 const popularItems = ref<Item[]>([])
 
-const { dm, downloadedIds, downloadProgress } = useDownload()
-
 // 429 重试倒计时
 const { retryCountdown, requestWithRetry } = useRetryCountdown()
 
-function handleStartDownload(id: number) {
-    downloadProgress.value = new Map([...downloadProgress.value, [id, 0]])
-    dm.startDownload(id)
-}
-
-function handleRemoveDownload(id: number) {
-    dm.removeDownload(id)
-    const next = new Set(downloadedIds.value)
-    next.delete(id)
-    downloadedIds.value = next
-}
-
-function handleReDownload(id: number) {
-    const next = new Set(downloadedIds.value)
-    next.delete(id)
-    downloadedIds.value = next
-    handleStartDownload(id)
-}
-
 async function loadPopular() {
-    await requestWithRetry(async () => {
-        const items = await getPopular()
-        popularItems.value = items.filter(Boolean).map((item) => ({ ...item, _page: 1 }))
-    })
+    try {
+        await requestWithRetry(async () => {
+            const items = await getPopular()
+            popularItems.value = items.filter(Boolean).map((item) => ({ ...item, _page: 1 }))
+        })
+    } catch (err) {
+        // 热门区块是锦上添花，失败不影响主列表
+        console.error('[Home] 获取 Popular Now 失败', err)
+    }
 }
 
-const isEnd = computed(() => page.value === numPages.value)
+const isEnd = computed(() => page.value >= numPages.value)
 
 async function loadMore() {
     if (loadingMore.value || isEnd.value) return
     loadingMore.value = true
     const nextPage = page.value + 1
-    await requestWithRetry(async () => {
-        const data = await getGallery(nextPage)
-        results.value.push(...data.result.map((item) => ({ ...item, _page: nextPage })))
-        page.value = nextPage
-        numPages.value = data.num_pages
-        batchCheckDownloaded(data.result.map((item) => item.id))
-    })
-    loadingMore.value = false
+    try {
+        await requestWithRetry(async () => {
+            const data = await getGallery(nextPage)
+            results.value.push(...data.result.map((item) => ({ ...item, _page: nextPage })))
+            page.value = nextPage
+            numPages.value = data.num_pages
+            batchCheckDownloaded(data.result.map((item) => item.id))
+        })
+    } catch (err) {
+        console.error('[Home] 加载更多失败', err)
+    } finally {
+        // 必须放在 finally：一旦请求抛错，写在外面会让 loadingMore 永久为 true
+        loadingMore.value = false
+    }
 }
-
-useInfiniteScroll(loadMore, page)
-
-onMounted(() => {
-    loadGallery()
-    loadPopular()
-})
 
 async function loadGallery() {
     loading.value = true
     results.value = []
     page.value = 1
-    await requestWithRetry(async () => {
-        const data = await getGallery(1)
-        results.value = data.result.map((item) => ({ ...item, _page: 1 }))
-        numPages.value = data.num_pages
-        batchCheckDownloaded(data.result.map((item) => item.id))
-    })
-    loading.value = false
+    try {
+        await requestWithRetry(async () => {
+            const data = await getGallery(1)
+            results.value = data.result.map((item) => ({ ...item, _page: 1 }))
+            numPages.value = data.num_pages
+            batchCheckDownloaded(data.result.map((item) => item.id))
+        })
+    } catch (err) {
+        console.error('[Home] 加载首页失败', err)
+    } finally {
+        loading.value = false
+    }
 }
+
+useInfiniteScroll(loadMore, page)
+
+onMounted(() => {
+    void loadGallery()
+    void loadPopular()
+})
 </script>
 
 <template>
@@ -97,14 +92,7 @@ async function loadGallery() {
         </div>
         <GalleryGridVirtual :items="popularItems" :is-end="true" compact>
             <template #overlay="{ item }">
-                <DownloadOverlay
-                    :item="item"
-                    :downloaded-ids="downloadedIds"
-                    :download-progress="downloadProgress"
-                    @start-download="handleStartDownload"
-                    @remove-download="handleRemoveDownload"
-                    @re-download="handleReDownload"
-                />
+                <DownloadOverlay :item="item" />
             </template>
         </GalleryGridVirtual>
     </template>
@@ -113,14 +101,7 @@ async function loadGallery() {
     <div :class="popularItems.length > 0 ? 'mt-8' : ''">
         <GalleryGridVirtual :items="results" :loading="loading" :loading-more="loadingMore" :is-end="isEnd">
             <template #overlay="{ item }">
-                <DownloadOverlay
-                    :item="item"
-                    :downloaded-ids="downloadedIds"
-                    :download-progress="downloadProgress"
-                    @start-download="handleStartDownload"
-                    @remove-download="handleRemoveDownload"
-                    @re-download="handleReDownload"
-                />
+                <DownloadOverlay :item="item" />
             </template>
         </GalleryGridVirtual>
     </div>
